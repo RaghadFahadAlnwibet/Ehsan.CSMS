@@ -1,0 +1,28 @@
+﻿@model Ehsan.CSMS.Dtos.CostumerDto
+
+@{
+    ViewData["Title"] = "Create Costumer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<form method="post" asp-action="Create" asp-controller="Customer" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+    <h2 class="mb-4 text-dark">Create Costumer</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @Html.HiddenFor(c=>c.Id)
+    <div class="mb-3">
+        @Html.LabelFor(c => c.CustomerName, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.CustomerName, new { @class = "form-control", @placeholder = "Enter Customer Name", @required = "required" })
+        @Html.ValidationMessageFor(c => c.CustomerName, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-3">
+        @Html.LabelFor(c => c.ContactInfo, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.ContactInfo, new { @class = "form-control", @placeholder = "Enter Mobile Number", @required = "required" })
+        @Html.ValidationMessageFor(c => c.ContactInfo, "", new { @class = "text-danger" })
+    </div>
+    <div class="mb-1">
+        <button type="submit" class="btn btn mt-3 w-100" style="background-color: #ff5722; color: white">Save</button>
+    </div>
+</form>

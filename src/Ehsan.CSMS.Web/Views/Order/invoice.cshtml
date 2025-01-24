@@ -1,0 +1,31 @@
+﻿@using Ehsan.CSMS.Dtos
+@model OrderDto
+@{
+    ViewData["title"] = "Invoice";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card p-4" style="width: 100%; border-radius: 10px; background-color: #f8f9fc;">
+   
+
+    <h3 class="text-center text-dark font-weight-bold" style="font-size: 2.5rem;">
+        <strong>@Model.NetPrice SAR</strong>
+    </h3>
+
+    <p class="text-center text-muted">No. INV #@Model.Id</p>
+
+    <div class="d-flex justify-content-center align-items-center mb-3">
+        <span class="mr-2">Status:</span> &nbsp; &nbsp;
+        <span class="badge rounded-pill bg-success" style="color:white; padding:6px; width: 80px;">@Model.OrderStatus</span>
+    </div>
+
+
+    <div class="text-center text-muted">
+        Order Date: <span>@Model.CreationTime</span>
+    </div>
+</div>
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>

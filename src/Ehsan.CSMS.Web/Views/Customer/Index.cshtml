@@ -1,0 +1,79 @@
+﻿@using Ehsan.CSMS.Web.Models
+@model CostumerViewModel
+@{
+    ViewData["Title"] = "Home Costumer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <link rel="stylesheet" href="~/css/index.css" />
+</head>
+
+
+<form method="post" asp-action="SearchCostumer" asp-controller="Customer" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+        <h1 class="text-dark mb-4">Search customer</h1>
+
+    <div class="form-group pb-3">
+        @Html.LabelFor(c => c.costumerSearchCriteria.Id)
+
+        @Html.TextBoxFor(c => c.costumerSearchCriteria.Id, new { @class = "form-control", @placeholder = "Enter customer ID" })
+    </div>
+    <div class="form-group pb-3">
+        @Html.LabelFor(c => c.costumerSearchCriteria.CustomerName)
+        @Html.TextBoxFor(c => c.costumerSearchCriteria.CustomerName, new { @class = "form-control", @placeholder = "Enter customer ID" })
+
+    </div> <div class="form-group pb-3">
+        @Html.LabelFor(c => c.costumerSearchCriteria.mobileNumber)
+        @Html.TextBoxFor(c => c.costumerSearchCriteria.mobileNumber, new { @class = "form-control", @placeholder = "Enter customer ID" })
+
+    </div>
+
+    
+    <button type="submit" class="btn btn mt-3 mainbtn" style="background-color: #ff5722; color: white">Search</button>
+    <a type="button" asp-controller="Customer" asp-action="SearchCostumer" value="Reseat" class="btn btn mt-3 reset-btn">Reset</a>
+</form>
+
+
+
+<br />
+<br />
+<div class="header-container">
+    <h3 class="text-dark mb-4">Customer List</h3>
+    <a href="/Customer/Create">
+        <i class='bx bx-plus'></i>
+        Add Customer
+    </a>
+</div>
+
+<table class="task-table">
+    <thead>
+    <tr>
+        <th>Customer Id</th>
+        <th>Customer Name</th>
+        <th>Mobile Number</th>
+        <th>Loyalty Points</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var customer in Model.costumers)
+    {
+        <tr>
+            <td>@Html.Encode(customer.Id)</td>
+            <td>@Html.Encode(customer.CustomerName)</td>
+            <td>@Html.Encode(customer.ContactInfo)</td>
+            <td>@Html.Encode(customer.LoyaltyPoints)</td>
+            <td>
+                <div class="dropdown">
+                    <button class="dropdown-button">⋮</button>
+                    <div class="dropdown-content">
+                        @Html.ActionLink("Edit", "Edit", new { id = customer.Id })
+                        @Html.ActionLink("Details", "Details", new { id = customer.Id })
+                        @Html.ActionLink("Delete", "DeleteCostumer", "Customer", new { id = customer.Id })
+                    </div>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+

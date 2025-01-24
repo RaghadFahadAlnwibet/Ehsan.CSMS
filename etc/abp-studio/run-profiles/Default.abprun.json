@@ -1,0 +1,10 @@
+﻿{
+  "applications": {
+    "Ehsan.CSMS.Web": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44385",
+      "path": "../../../src/Ehsan.CSMS.Web/Ehsan.CSMS.Web.csproj",
+      "kubernetesService": ".*-web$"
+    }
+  }
+}

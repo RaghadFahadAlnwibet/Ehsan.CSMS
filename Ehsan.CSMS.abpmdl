@@ -1,0 +1,89 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.Account": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "8.2.2",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "8.2.2",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Ehsan.CSMS.Application": {
+      "path": "src/Ehsan.CSMS.Application/Ehsan.CSMS.Application.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.Application.Tests": {
+      "path": "test/Ehsan.CSMS.Application.Tests/Ehsan.CSMS.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ehsan.CSMS.Domain.Shared": {
+      "path": "src/Ehsan.CSMS.Domain.Shared/Ehsan.CSMS.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.Application.Contracts": {
+      "path": "src/Ehsan.CSMS.Application.Contracts/Ehsan.CSMS.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.HttpApi": {
+      "path": "src/Ehsan.CSMS.HttpApi/Ehsan.CSMS.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.HttpApi.Client": {
+      "path": "src/Ehsan.CSMS.HttpApi.Client/Ehsan.CSMS.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.Web": {
+      "path": "src/Ehsan.CSMS.Web/Ehsan.CSMS.Web.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.Web.Tests": {
+      "path": "test/Ehsan.CSMS.Web.Tests/Ehsan.CSMS.Web.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ehsan.CSMS.EntityFrameworkCore.Tests": {
+      "path": "test/Ehsan.CSMS.EntityFrameworkCore.Tests/Ehsan.CSMS.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ehsan.CSMS.EntityFrameworkCore": {
+      "path": "src/Ehsan.CSMS.EntityFrameworkCore/Ehsan.CSMS.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.TestBase": {
+      "path": "test/Ehsan.CSMS.TestBase/Ehsan.CSMS.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Ehsan.CSMS.Domain.Tests": {
+      "path": "test/Ehsan.CSMS.Domain.Tests/Ehsan.CSMS.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Ehsan.CSMS.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/Ehsan.CSMS.HttpApi.Client.ConsoleTestApp/Ehsan.CSMS.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "Ehsan.CSMS.DbMigrator": {
+      "path": "src/Ehsan.CSMS.DbMigrator/Ehsan.CSMS.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "Ehsan.CSMS.Domain": {
+      "path": "src/Ehsan.CSMS.Domain/Ehsan.CSMS.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+﻿@model Ehsan.CSMS.Dtos.CashierDto
+
+@{
+    ViewData["Title"] = "Create Cashier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+
+<form method="post" asp-action="Create" asp-controller="Cashier" class="p-4 shadow-sm border rounded">
+    <h2 class="mb-4 text-dark">Create Cashier</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        @Html.LabelFor(c => c.CashierName, new { @class = "form-label", @pattren = "[a-zA-z]{20}" })
+        @Html.TextBoxFor(c => c.CashierName, new { @class = "form-control", @placeholder = "Enter Cashier Name", @required ="required"})
+        @Html.ValidationMessageFor(c => c.CashierName, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="mb-1">
+        <button type="submit" class="btn btn mt-3 w-100" style="background-color: #ff5722; color: white">Save</button>
+    </div>
+</form>
+

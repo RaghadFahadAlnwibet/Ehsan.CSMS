@@ -1,0 +1,39 @@
+{
+  "id": "caa35ac4-1742-4404-b63e-d21408776122",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "8.2.2",
+    "AbpStudio": "0.7.8"
+  },
+  "modules": {
+    "Ehsan.CSMS": {
+      "path": "Ehsan.CSMS.abpmdl"
+    }
+  }, 
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "options": {
+    "httpRequests": {
+        "ignoredUrls": [
+          "^/metrics$"
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "0.7.8",
+    "tiered": "false",
+    "uiFramework": "mvc",
+    "databaseProvider": "ef",
+    "databaseManagementSystem": "sqlserver",
+    "separateTenantSchema": "false",
+    "theme": "basic",
+    "themeStyle": "",
+    "mobileFramework": "none",
+    "publicWebsite": "false",
+    "socialLogin": ""
+  }
+}

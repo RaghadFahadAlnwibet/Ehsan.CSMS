@@ -1,0 +1,81 @@
+﻿@using Ehsan.CSMS.Web.Models
+@model ProductViewModel
+
+
+@{
+    ViewData["Title"] = "Home Product";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<head>
+    <link rel="stylesheet" href="~/css/index.css" />
+
+</head>
+
+
+
+
+<form method="post" asp-action="SearchProduct" asp-controller="Product" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+    <h1 class="text-dark mb-4">Search Product</h1>
+
+        <div class="form-group pb-3">
+            @Html.LabelFor(c => c.productSearchCriteria.Id, new { @class = "form-label" })
+            @Html.TextBoxFor(c => c.productSearchCriteria.Id, new { @class = "form-control", @placeholder = "Enter Product ID" })
+        </div>
+        <div class="form-group pb-3">
+            @Html.LabelFor(c => c.productSearchCriteria.ProductName, new { @class = "form-label" })
+            @Html.TextBoxFor(c => c.productSearchCriteria.ProductName, new { @class = "form-control", @placeholder = "Enter Product Name" })
+        </div>
+        <div class="form-group pb-3">
+            @Html.LabelFor(c => c.productSearchCriteria.CategoryId, new { @class = "form-label" })
+            @Html.DropDownListFor(c => c.productSearchCriteria.CategoryId,
+                     ViewBag.CategoryList as SelectList,
+                "Select Category",
+                new { @class = "form-control" })
+        </div>
+    
+    <button type="submit" value="Search" class="btn btn mt-3 mainbtn" style="background-color: #ff5722; color: white">Search</button>
+    <a type="button" asp-controller="Product" asp-action="SearchProduct" value="Reseat" class="btn btn mt-3 reset-btn">Reset</a>
+</form>
+
+
+
+
+<br />
+<br />
+<div class="header-container">
+    <h3 class="text-dark mb-4">Product List</h3>
+    <a href="/Product/Create">
+        <i class='bx bx-plus'></i>
+        Add Product
+    </a>
+</div>
+
+<table class="task-table">
+    <tr>
+        <th>Id</th>
+        <th>Product Name</th>
+        <th>Product Price</th>
+        <th>Category Name</th>
+        <th></th>
+    </tr>
+    @foreach (var product in Model.products)
+    {
+        <tr>
+            <td>@Html.Encode(product.Id)</td>
+            <td>@Html.Encode(product.ProductName)</td>
+            <td>@Html.Encode(product.ProductPrice)</td>
+            <td>@Html.Encode(product.Category.CategoryName)</td>
+            <td>
+                <div class="dropdown">
+                    <button class="dropdown-button">⋮</button>
+                    <div class="dropdown-content">
+                        @Html.ActionLink("Edit", "Edit", new { id = product.Id})
+                        @Html.ActionLink("Details", "Details", new { id = product.Id })
+                        @Html.ActionLink("Delete", "DeleteProduct", new { id = product.Id })
+                    </div>
+                </div>
+            </td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,70 @@
+﻿@using Ehsan.CSMS.Web.Models
+@model CashierViewModel
+
+@{
+    ViewData["Title"] = "Cashier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<head>
+    <link rel="stylesheet" href="~/css/index.css" />
+</head>
+
+
+
+
+<form method="post" asp-action="SearchCashier" asp-controller="Cashier" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+    <h1 class="text-dark mb-4">Search Cashier</h1>
+
+    <div class="form-group pb-3">
+        @Html.LabelFor(c => c.SearchCriteria.Id, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.SearchCriteria.Id, new { @class = "form-control", @placeholder = "Enter Cashier ID" })
+    </div>
+
+    <div class="form-group pb-3">
+        @Html.LabelFor(c => c.SearchCriteria.CashierName, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.SearchCriteria.CashierName, new { @class = "form-control", @placeholder = "Enter Cashier Name" })
+    </div>
+
+    <button type="submit" value="Search" class="btn mt-3 btn mainbtn" style="background-color: #ff5722; color: white">Search</button>
+    <a type="button" asp-controller="Cashier" asp-action="SearchCashier" value="Reseat" class="btn btn mt-3 reset-btn">Reset</a>
+</form>
+<br />
+<br />
+
+<div class="header-container">
+    <h3 class="text-dark mb-4">Cashier List</h3>
+    <a href="/Cashier/Create">
+        <i class='bx bx-plus'></i>
+        Add Cashier
+    </a>
+</div>
+
+<table class="task-table">
+    <tr>
+        <th>Id</th>
+        <th>Cashier Name</th>
+        <th></th>
+    </tr>
+        </>
+    @foreach (var cashier in Model.Cashiers)
+    {
+        <tr>
+            <td>@Html.Encode(cashier.Id)</td>
+            <td>@Html.Encode(cashier.CashierName)</td>
+            <td>
+                <div class="dropdown">
+                    <button class="dropdown-button">⋮</button>
+                    <div class="dropdown-content">
+                        @Html.ActionLink("Edit", "Edit", new { id = cashier.Id })
+                        @Html.ActionLink("Details", "Details", new { id = cashier.Id })
+                        @Html.ActionLink("Delete", "DeleteCashier", new { id = cashier.Id })
+                    </div>
+                </div>
+            </td>
+        </tr>
+    }
+</table>
+
+ 

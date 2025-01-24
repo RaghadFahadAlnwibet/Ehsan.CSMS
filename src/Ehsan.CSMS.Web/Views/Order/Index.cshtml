@@ -1,0 +1,139 @@
+﻿@using Ehsan.CSMS.Web.Models
+@model OrderViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<head>
+    <link rel="stylesheet" href="~/css/index.css" />
+</head>
+
+<form method="post" asp-action="SearchFromModelView" asp-controller="Order" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+    <h3 class="text-dark mb-4">Search Order</h3>
+    <div class="form-group pb-3">
+        @Html.LabelFor(c => c.orderSearchCriteria.OrderId, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.orderSearchCriteria.OrderId, new { @class = "form-control", @placeholder = "Enter Order ID" })
+    </div>
+    <div class="form-groupp pb-3">
+        @Html.LabelFor(c => c.orderSearchCriteria.CashierId, new { @class = "form-label" })
+        @Html.DropDownListFor(c => c.orderSearchCriteria.CashierId,
+                     ViewBag.Cashiers as SelectList,
+                     "Select Cashier",
+                     new { @class = "form-control" })
+    </div>
+    <button type="submit" class="btn mt-3 mainbtn" style="background-color: #ff5722; color: white">Search</button>
+    <a type="button" asp-controller="Order" asp-action="SearchFromModelView" value="Reset" class="btn mt-3 reset-btn">Reset</a>
+</form>
+
+<br /><br />
+
+<div class="header-container">
+    <h3 class="text-dark mb-4">Order List</h3>
+        <a href="/Order/Create">
+            <i class='bx bx-plus'></i>
+            Add Order
+        </a>
+</div>
+@{
+    var selectedId = TempData["selected"] != null ? TempData["selected"].ToString() : "0";
+}
+<div class="filter-tabs">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link @(selectedId == "0" ? "active": "")" href="/Order/filtterByOrderStatus?id=0" style="color:#ff5722;">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(selectedId == "1" ? "active": "")" href="/Order/filtterByOrderStatus?id=1" style="color:#ff5722;">New</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(selectedId == "2"? "active" : "")" href="/Order/filtterByOrderStatus?id=2" style="color:#ff5722;">Inprogress</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link  @(selectedId == "3"? "active" : "")" href="/Order/filtterByOrderStatus?id=3" style="color:#ff5722;">Done</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link  @(selectedId == "4"? "active" : "")" href="/Order/filtterByOrderStatus?id=4" style="color:#ff5722;">Rejected</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link  @(selectedId == "5"? "active" : "")" href="/Order/filtterByOrderStatus?id=5" style="color:#ff5722;">Canceled</a>
+        </li> 
+    </ul>
+</div>
+
+<table class="task-table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Customer Name</th>
+            <th>Cashier Name</th>
+            <th>Loyalty Point</th>
+            <th>Creation time</th>
+            <th>Total price</th>
+            <th>Net price</th>
+            <th>Order Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.orders)
+        {
+            <tr>
+                <td>@Html.Encode(order.Id)</td>
+                <td>@Html.Encode(order.Customer.CustomerName)</td>
+                <td>@Html.Encode(order.Cashier.CashierName)</td>
+                <td>@Html.Encode(order.Customer.LoyaltyPoints)</td>
+                <td>@Html.Encode(order.CreationTime)</td>
+                <td>@Html.Encode(order.TotalPrice)</td>
+                <td>@Html.Encode(order.NetPrice)</td>
+                @if ((int)order.OrderStatus == 3)
+                {
+                    <td>
+                        <a href="/Order/ShowInvoice?orderId=@order.Id" class="btn btn mainbtn" style="background-color: #ff5722; color: white">View Invoice</a>
+                    </td>
+                }
+                else
+                {
+
+                    var status = (int)order.OrderStatus;
+                    switch (status)
+                    {
+                        case 1:
+                            <td> <span class="badge rounded-pill bg-info" style="color:white; padding:6px; width: 80px;">@Html.DisplayFor(c => order.OrderStatus)</span></td>
+                        break;
+                        case 2:
+                            <td> <span class="badge rounded-pill bg-primary" style="color:white; padding:6px; width: 90px;">@Html.DisplayFor(c => order.OrderStatus)</span></td>
+                        break;
+                        case 4:
+                            <td> <span class="badge rounded-pill bg-danger" style="color:white; padding:6px; width: 80px;">@Html.DisplayFor(c => order.OrderStatus)</span></td>
+                        break;
+                        case 5:
+                            <td> <span class="badge rounded-pill bg-secondary" style="color:white; padding:6px; width: 80px;">@Html.DisplayFor(c => order.OrderStatus)</span></td>
+                        break;
+                    }
+
+                }
+                <td>
+                    <div class="dropdown">
+                        <button class="dropdown-button">⋮</button>
+                        <div class="dropdown-content">
+                            @if((int)order.OrderStatus != 3)
+                            {
+                            @Html.ActionLink("Edit", "Edit", new { id = order.Id })
+                            }
+                            @Html.ActionLink("Details", "Details", new { id = order.Id })
+                            @Html.ActionLink("Delete", "DeleteOrder", new { id = order.Id })
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+
+
+
+

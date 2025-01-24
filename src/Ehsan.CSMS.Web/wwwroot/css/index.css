@@ -1,0 +1,108 @@
+﻿.task-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+    margin: 25px 0;
+    background-color: #ffffff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+    .task-table th, .task-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: none;
+    }
+
+    .task-table th {
+        background-color: rgba(255, 255, 255, 0.075);
+        color: black;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .task-table tr:nth-of-type(even) {
+        background-color: #f9f9f9;
+    }
+
+    .task-table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9; 
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+}
+
+.dropdown-content a {
+    font-size: 12px;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    background-color: #ffffff;
+}
+
+.dropdown-content a:hover {
+    background-color: #f9f9f9;
+    color: black;
+    border-radius: 5px;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    color: #555;
+}
+
+    .dropdown-button:hover {
+        color: #000;
+    }
+
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+a{
+    font-size: 1.1em;
+    color: black;
+    text-decoration: none;
+    padding: 10px;
+}
+.mainbtn {
+    background-color: #ff5722;
+    color: white;
+}
+
+* {
+    font-size: 16px;
+}
+
+.reset-btn:hover {
+    color: gray;
+}

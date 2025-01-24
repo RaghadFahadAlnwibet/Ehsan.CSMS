@@ -1,0 +1,127 @@
+﻿@using Ehsan.CSMS.Dtos
+@using Ehsan.CSMS.Enums
+@model OrderDto
+@{
+    ViewData["title"] = "Edit Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="Edit" asp-controller="Order">
+    <div class="card p-4" style="width: 100%;">
+        <h3 class="text-dark mb-4">
+            Edit Order #@Model.Id</h3>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order Status</th>
+                        <td>
+                            @Html.DropDownListFor(c => c.OrderStatus,
+                                     Html.GetEnumSelectList<OrderStatus>(),
+                                     "Select Status",
+                                     new { @class = "form-control", @value = Model.OrderStatus })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="text-center">Order Details</th>
+                    </tr> 
+                </thead>
+                <tbody>
+                    <tr>
+                         <th><strong>Item</strong></th>
+                        <th><strong>Price</strong></th>
+                        <th></th>
+                        <th><strong>Qty</strong></th>
+                        <th><strong>SubTotal</strong></th>
+
+                     
+
+                    </tr>
+                    @for (int i = 0; i < Model.OrderDetails.Count(); i++)
+                    {
+                        <tr>
+                            <td>@Model.OrderDetails[i].Product.ProductName</td>
+                            <td>@Model.OrderDetails[i].PricePerUnit</td>
+                            <td>X</td>
+                            <td>@Model.OrderDetails[i].Quantity</td>
+                            <td>@Model.OrderDetails[i].TotalPrice</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+           </div>
+           @Html.HiddenFor(c=>c.Id)
+        <div class="row">
+            <div class="col text-end">
+                <strong>Total Amount</strong>
+            </div>
+            <div class="col text-end">
+                <strong id="totalAmountDisplay"></strong>
+            </div>
+        </div>
+        @Html.HiddenFor(c => c.Id)
+        @Html.HiddenFor(c => c.CashierId)
+        @Html.HiddenFor(c => c.NetPrice)
+        @Html.HiddenFor(c => c.discount)
+
+        @Html.HiddenFor(c => c.CustomerId)
+        @Html.HiddenFor(c => c.CreationTime)
+        @Html.HiddenFor(c => c.LastModificationTime)
+        @Html.HiddenFor(c => c.TotalPrice, new { @id = "FinalPrice" })
+
+     </div>
+    <div class="mb-1">
+        <button type="submit" id="sbtn" class="btn btn-primary mt-3 w-100" value="Save" style="background-color: #ff5722; color: white">Update Order</button>
+    </div>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+    span {
+        font-size: 10px;
+        color: gray;
+    }
+    .card {
+        border-radius: 15px;
+        background-color: white;
+        box-shadow: none;
+    }
+
+    h3 {
+        font-size: 24px;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    span.text-secondary {
+        font-size: 14px;
+        color: black;
+    }
+
+    th {
+        font-weight: bold;
+        text-align: left;
+        background-color: white;
+        padding: 15px;
+    }
+
+  
+</style>
+
+
+<script>
+    var GetOrderUrl = '@Url.Action("GetOrderbyId", "Order")'
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="~/js/EditOrderScript.js"></script>

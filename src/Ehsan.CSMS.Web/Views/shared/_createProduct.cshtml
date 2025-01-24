@@ -1,0 +1,73 @@
+﻿    @using Ehsan.CSMS.Web.Models
+    @model CreateOrderViewModel
+
+@{
+    ViewData["Title"] = "View";
+    Layout = null;
+}
+
+<div class="row mb-3 partialRow" id="">
+        <div class="col">
+        <select id="selectedPrpducts" name="selectedPrpducts" >
+            <option value="" disabled selected>Select Product</option>
+            @foreach (var product in Model.products)
+            {
+                <option value="@product.Id" data-product-name="@product.ProductName" data-category-name="@product.Category.CategoryName">
+                    @product.ProductName
+                </option>
+            }
+        </select>
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(c => c.pricePerUnit, new { @class = "form-control", @placeholder = "Price SAR", @readonly = "readonly", @name = "order.OrderDetails.PricePerUnit" })
+        </div>
+        <div class="col">
+             @Html.TextBoxFor(c => c.qunatity, new { @type = "number", @class = "form-control", @value = "1", @min = "1", @max = "8", @placeholder = "Quantity", @name = "order.OrderDetails.Quantity" })
+        </div>
+        <div class="col">
+        @Html.TextBoxFor(c => c.subTotals, new { @class = "form-control", @placeholder = "Total Price", @readonly = "readonly", @name = "OrderDetails.TotalPrice" })
+        </div>
+    <div class="col">
+        <a  class="remove-btn btn ">
+            Remove
+        </a>
+    </div>
+</div>
+
+<style>
+    .remove-btn:hover{
+        color: gray
+    }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.1/js/tom-select.complete.js"></script>
+
+<script>
+    $(function () {
+        $('select').each(function () {
+        const selectElement = $(this)[0];
+        if ($(selectElement).attr('id') === 'selectedPrpducts') {
+            if (!selectElement.tomselect) {
+                new TomSelect(selectElement, {
+                    valueField: 'Id',
+                    searchField: 'productName',
+                    render: {
+                        option: function (data, escape) {
+                            return '<div>' +
+                                '<strong class="title">' + escape(data.productName) + '</span><br>' +
+                                '<span class="category">' + escape(data.categoryName) + '</span>' +
+                                '</div>';
+                        },
+                        item: function (data, escape) {
+                            return '<div productName="' + escape(data.productName) + '">' +
+                                '<span class="productName">' + escape(data.productName) + '</span>' +
+                                 '&nbsp;' +' | ' + '&nbsp;' +
+                                '<span class="category">' + escape(data.categoryName) + '</span>' +
+                                '</div>';
+                        }
+                    }
+                });
+            }
+        }
+    });
+});
+</script>

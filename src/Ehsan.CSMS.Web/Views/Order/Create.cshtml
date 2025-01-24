@@ -1,0 +1,158 @@
+﻿    @using Ehsan.CSMS.Web.Models
+    @model CreateOrderViewModel
+@{
+    ViewData["Title"] = "Create Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+</head>
+    <h3 class="mb-4 text-dark">Create Order</h3>
+    <form method="post" asp-action="CreateOrder" asp-controller="Order" enctype="multipart/form-data">
+
+
+        <div class="p-4 shadow-sm border rounded">
+             @Html.LabelFor(c => c.order.CashierId)
+        <br />
+             @Html.DropDownListFor(c => c.order.CashierId, ViewBag.Cashiers as SelectList, "Select Cashier", new { @class = "form-control", @required = "required" })
+        </div>
+          @Html.HiddenFor(c=>c.order.Cashier)
+        <br />
+        <h5 class="mb-4 text-dark">Customer Information</h5>
+        <div class="p-4 shadow-sm border rounded">
+            <div class="row">
+                <div class="col-md-10 col-sm-9">
+                @Html.LabelFor(c => c.order.Customer.ContactInfo, new { @class = "form-label" }) 
+                @Html.TextBoxFor(c => c.order.Customer.ContactInfo, new { @class = "form-control", @placeholder = "Check Customer Mobile Number", @required = "required" })
+                </div>
+                <div class="col-md-2 col-sm-3 d-flex justify-content-center align-items-end">
+                <button type="button" id="btn" class="btn btn w-100" style="background-color: #ff5722; color: white">Check</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="partialviews">
+        
+        </div>
+        <br />
+    <h5 class="mb-4 text-dark">Invoice Item</h5>
+    <div class="p-4 shadow-sm border rounded">
+        <div class="row mb-3 productsLabels">
+            <div class="col">
+                <label for="selectedProducts"><strong>Item</strong></label>
+            </div>
+            <div class="col">
+                <label for="ProductPricePerUnit"><strong>Price</strong></label>
+            </div>
+            <div class="col">
+                <label for="Quantity"><strong>Qty</strong></label>
+            </div>
+            <div class="col">
+                <label for="order_TotalPrice"><strong>Total Price</strong></label>
+            </div>
+            <div class="col">
+            </div>
+        </div>
+
+        <div id="productRows">
+           
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <a id="addItemBtn">
+                    <i class='bx bx-plus'></i>
+                    Add item 
+                </a>
+               
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-end">
+                <strong>Total Amount</strong>
+            </div>
+            <div class="col text-end">
+                <strong id="totalAmountDisplay">0.00SAR</strong>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="order.OrderStatus" value="1"/>
+    @Html.HiddenFor(c=>c.order.TotalPrice, new {@id="FinalPrice"})
+    <div class="mb-1">
+        <button type="submit" id="sbtn" class="btn btn mt-3 w-100" style="background-color: #ff5722; color: white">Save</button>
+    </div>
+    </form>
+
+
+
+
+
+
+
+<style>
+    .ts-wrapper .option {
+        padding: 10px;
+        border-bottom: 1px solid #e0e0e0;
+        display: block;
+    }
+
+        .ts-wrapper .option .title {
+            font-weight: bold;
+            font-size: 10px;
+            color: #333;
+            display: block;
+        }
+
+        .ts-wrapper .option .option-category { /* Changed from .category to avoid conflict */
+            font-size: 12px;
+            color: #777;
+            display: block;
+        }
+
+    .ts-wrapper .item {
+        font-size: 12px;
+        padding-top: 3px;
+        display: flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.075);
+        border-radius: 5px;
+    }
+
+        .ts-wrapper .item .productName {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .ts-wrapper .item .item-category { /* Changed from .category to avoid conflict */
+            font-size: 12px;
+            color: #999;
+        }
+
+    #addItemBtn:hover {
+            color: #ff5722;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    var customerInfoUrl = '@Url.Action("Customerinfo", "Order")';
+    var productPriceUrl = '@Url.Action("GetProductPrice", "Product")';
+    var productInfoUrl =  '@Url.Action("ProductInfo", "Order")';
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.1/js/tom-select.complete.js"></script>
+<script src="~/js/CreateOrderSecript.js"></script>
+<script src="~/js/CustomerScript.js"></script>
