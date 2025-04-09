@@ -3,7 +3,7 @@
   <Import Project="..\..\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <RootNamespace>Ehsan.CSMS</RootNamespace>
   </PropertyGroup>
@@ -13,25 +13,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.EntityFrameworkCore.SqlServer" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.PermissionManagement.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.SettingManagement.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.BackgroundJobs.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.AuditLogging.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.FeatureManagement.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.BlobStoring.Database.EntityFrameworkCore" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.AuditLogging.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.BackgroundJobs.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore.SqlServer" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.SettingManagement.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.BlobStoring.Database.EntityFrameworkCore" Version="9.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.OpenIddict.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.Identity.EntityFrameworkCore" Version="8.2.2" />
-    <PackageReference Include="Volo.Abp.TenantManagement.EntityFrameworkCore" Version="8.2.2" />
+    <PackageReference Include="Volo.Abp.OpenIddict.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.Identity.EntityFrameworkCore" Version="9.1.0" />
+    <PackageReference Include="Volo.Abp.TenantManagement.EntityFrameworkCore" Version="9.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>compile; contentFiles; build; buildMultitargeting; buildTransitive; analyzers; native</PrivateAssets>
+      <PrivateAssets>compile; build; native; contentfiles; analyzers; buildtransitive</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 

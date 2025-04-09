@@ -1,13 +1,12 @@
-using System.Collections.Generic;
-using System.Globalization;
+using Ehsan.CSMS.EntityFrameworkCore;
+using Ehsan.CSMS.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ehsan.CSMS.EntityFrameworkCore;
-using Ehsan.CSMS.Web;
-using Ehsan.CSMS.Web.Menus;
+using System.Collections.Generic;
+using System.Globalization;
 using Volo.Abp.AspNetCore.TestBase;
 using Volo.Abp.Modularity;
 using Volo.Abp.OpenIddict;

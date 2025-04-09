@@ -1,82 +1,77 @@
-﻿@using Ehsan.CSMS.Dtos
-@using Ehsan.CSMS.Enums
-@model OrderDto
+﻿@model OrderUpdateRequest
 @{
     ViewData["title"] = "Edit Order";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+<link href="~/css/EditOrder.css" rel="stylesheet" />
 
-<form asp-action="Edit" asp-controller="Order">
-    <div class="card p-4" style="width: 100%;">
-        <h3 class="text-dark mb-4">
-            Edit Order #@Model.Id</h3>
+    <div class="card shadow-sm p-4 rounded-3 bg-white" style="max-width: 900px; margin: auto;">
+        <h3 class="text-dark mb-4 text-center">Edit Order #@Model.Id</h3>
+        @Html.HiddenFor(c => c.Id)
         <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Order Status</th>
-                        <td>
-                            @Html.DropDownListFor(c => c.OrderStatus,
-                                     Html.GetEnumSelectList<OrderStatus>(),
-                                     "Select Status",
-                                     new { @class = "form-control", @value = Model.OrderStatus })
-                        </td>
-                    </tr>
-                    <tr>
-                        <th colspan="2" class="text-center">Order Details</th>
-                    </tr> 
-                </thead>
-                <tbody>
-                    <tr>
-                         <th><strong>Item</strong></th>
-                        <th><strong>Price</strong></th>
-                        <th></th>
-                        <th><strong>Qty</strong></th>
-                        <th><strong>SubTotal</strong></th>
-
-                     
-
-                    </tr>
-                    @for (int i = 0; i < Model.OrderDetails.Count(); i++)
-                    {
-                        <tr>
-                            <td>@Model.OrderDetails[i].Product.ProductName</td>
-                            <td>@Model.OrderDetails[i].PricePerUnit</td>
-                            <td>X</td>
-                            <td>@Model.OrderDetails[i].Quantity</td>
-                            <td>@Model.OrderDetails[i].TotalPrice</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-           </div>
-           @Html.HiddenFor(c=>c.Id)
-        <div class="row">
-            <div class="col text-end">
-                <strong>Total Amount</strong>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Order Status</label>
+                @Html.DropDownListFor(c => c.orderStatus,
+                Html.GetEnumSelectList<OrderStatus>(),
+                "Select Status",
+                new { @class = "form-select" })
             </div>
-            <div class="col text-end">
-                <strong id="totalAmountDisplay"></strong>
+
+            <h5 class="text-center fw-bold mt-4">Order Details</h5>
+            <div class="row mb-3 productsLabels">
+                <div class="col">
+                    <label for="selectedProducts">Item</label>
+                </div>
+                <div class="col">
+                    <label for="ProductPricePerUnit">Price</label>
+                </div>
+                <div class="col">
+                    <label for="Quantity">Qty</label>
+                </div>
+                <div class="col">
+                    <label for="order_TotalPrice">Total Price</label>
+                </div>
+                <div class="col">
+                </div>
+            </div>
+            <div id="productRows">
+
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <a id="addItemBtn">
+                        <i class='bx bx-plus'></i>
+                        Add item
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-3">
+                <h5><strong>Total Amount</strong></h5>
+                <strong id="totalAmountDisplay">0.00SAR</strong>
             </div>
         </div>
-        @Html.HiddenFor(c => c.Id)
-        @Html.HiddenFor(c => c.CashierId)
-        @Html.HiddenFor(c => c.NetPrice)
-        @Html.HiddenFor(c => c.discount)
 
-        @Html.HiddenFor(c => c.CustomerId)
-        @Html.HiddenFor(c => c.CreationTime)
-        @Html.HiddenFor(c => c.LastModificationTime)
-        @Html.HiddenFor(c => c.TotalPrice, new { @id = "FinalPrice" })
 
-     </div>
-    <div class="mb-1">
-        <button type="submit" id="sbtn" class="btn btn-primary mt-3 w-100" value="Save" style="background-color: #ff5722; color: white">Update Order</button>
+        <div asp-validation-summary="All" class="text-danger mt-2"></div>
+
+        @if (ViewBag.Errors is not null)
+        {
+            <div class="text-danger mt-2">
+                <ul>
+                    @foreach (string error in ViewBag.Errors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <div class="mb-1">
+            <button type="button" id="Edit" class="btn btn mt-3 w-100" style="background-color: #ff5722; color: white">
+                Update Order
+             </button>
+        </div>
     </div>
-</form>
-
-
-
 
 
 
@@ -88,40 +83,40 @@
 
 
 <style>
-    span {
-        font-size: 10px;
-        color: gray;
-    }
-    .card {
-        border-radius: 15px;
-        background-color: white;
-        box-shadow: none;
-    }
-
-    h3 {
-        font-size: 24px;
-        color: #007bff;
+    .productsLabels {
+        border-radius: 8px; 
+        font-size: 16px;
         font-weight: bold;
+        text-align: center;
     }
 
-    span.text-secondary {
-        font-size: 14px;
-        color: black;
+    .productsLabels .col {
+        display: flex;
+        align-items: center;
+        justify-content: center; 
     }
 
-    th {
-        font-weight: bold;
-        text-align: left;
-        background-color: white;
-        padding: 15px;
+    .productsLabels label {
+        margin: 0;
+        padding: 5px;
+        color: #333; 
+        font-weight: 600;
     }
-
-  
 </style>
 
 
+
+
+@section editOrderScript{
 <script>
-    var GetOrderUrl = '@Url.Action("GetOrderbyId", "Order")'
+    var productInfoUrl = '@Url.Action("GetProductInformation", "Product")';
+    var productPriceUrl = '@Url.Action("GetProductPrice", "Product")';
+    var orderInfoUrl = '@Url.Action("GetOrderById", "Order")';
+
+        var updateOrderUrl = '@Url.Action("Edit", "Order")';
 </script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="~/js/EditOrderScript.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.1/js/tom-select.complete.js"></script>
+<script src="~/js/OrderScripts/EditOrderScript.js" asp-append-version="true"></script>
+}
+
+

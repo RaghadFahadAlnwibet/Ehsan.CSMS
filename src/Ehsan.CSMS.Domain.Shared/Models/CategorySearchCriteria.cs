@@ -1,17 +1,13 @@
 ﻿using Ehsan.CSMS.Constant;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Ehsan.CSMS.Models
+namespace Ehsan.CSMS.Models;
+
+public class CategorySearchCriteria
 {
-    public class CategorySearchCriteria
-    {
-        public int? Id { get; set; }
-        [Display(Name = Fields.CategoryFields.CategoryName)]
-        public String CategoryName { get; set; }
-    }
+    [Display(Name = CategoryFields.CategoryId)]
+    public Guid? Id { get; set; }
+    [Display(Name = CategoryFields.CategoryName)]
+    public string? Name { get; set; }
 }

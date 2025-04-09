@@ -1,33 +1,33 @@
-﻿@model Ehsan.CSMS.Dtos.CostumerDto
+﻿@model CustomerUpdateRequest
 
-@{
-    ViewData["Title"] = "Edit Custumer";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
+@{ 
+    ViewData["Title"] = "Edit Customer"; 
+} 
 
 
 
-<form method="post" asp-action="Edit" asp-controller="Customer" enctype="multipart/form-data" class="p-4 shadow-sm border rounded ">
+
+<form method="post" asp-action="Edit" asp-controller="Customer" enctype="multipart/form-data" class="p-4 shadow-sm border rounded "> 
     <h2 class="mb-4 text-dark">Edit Custumer</h2>
-
     <div class="mb-3">
         @Html.LabelFor(c => c.Id, new { @class = "form-label" })
         @Html.TextBoxFor(c => c.Id, new { @class = "form-control", @readonly = "readonly" })
     </div>
 
     <div class="mb-3">
-        @Html.LabelFor(c => c.CustomerName, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.CustomerName, new { @class = "form-control", @placeholder = "Enter Customer Name", @required = "required" })
+        @Html.LabelFor(c => c.Name, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.Name, new { @class = "form-control", @placeholder = "Enter Customer Name"})
+        @Html.ValidationMessageFor(c => c.Name, "", new { @class = "text-danger" })
     </div>
 
     <div class="mb-3">
-        @Html.LabelFor(c => c.ContactInfo, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.ContactInfo, new { @class = "form-control", @placeholder = "Enter Mobile Number", @maxlength = "10", @minlength = "10", @required = "required" })
+        @Html.LabelFor(c => c.MobileNumber, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.MobileNumber, new { @class = "form-control", @placeholder = "Enter Mobile Number" })
+        @Html.ValidationMessageFor(c => c.MobileNumber, "", new { @class = "text-danger" })
     </div>
     <div class="mb-3">
-        @Html.LabelFor(c => c.LoyaltyPoints, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.LoyaltyPoints, new { @class = "form-control", @readonly = "readonly" })
+        @Html.LabelFor(c => c.LoyaltyPoint, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.LoyaltyPoint, new { @class = "form-control", @readonly = "readonly" })
     </div>
     <div class="mb-1">
         <button type="submit" class="btn btn-primary mt-3 w-100" value="Save" style="background-color: #ff5722; color: white">Update Customer</button>

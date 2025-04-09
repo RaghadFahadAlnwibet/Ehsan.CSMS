@@ -1,10 +1,8 @@
-﻿@model Ehsan.CSMS.Dtos.ProductDto
+﻿@model ProductResponse
 
 @{
-    ViewData["Title"] = "Product Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-
-}
+     ViewData["Title"] = "Product Details"; 
+} 
 
 
 
@@ -13,21 +11,22 @@
 
     <div class="mb-3">
         @Html.LabelFor(c => c.Id, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.Id, htmlAttributes: new { @class = "form-control", @readonly = "readonly" })
+        @Html.TextBoxFor(c => c.Id, new { @class = "form-control", @readonly = "readonly" })
     </div>
 
     <div class="mb-3">
         @Html.LabelFor(c => c.CategoryId, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.Category.CategoryName, htmlAttributes: new { @class = "form-control", @readonly = "readonly" })
+        @Html.TextBoxFor(c => c.Category.Name,  new { @class = "form-control", @readonly = "readonly" })
     </div>
 
     <div class="mb-3">
-        @Html.LabelFor(c => c.ProductName, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.ProductName, htmlAttributes: new { @class = "form-control", @readonly = "readonly" })
+        @Html.LabelFor(c => c.Name, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.Name,  new { @class = "form-control", @readonly = "readonly" })
     </div>
 
     <div class="mb-3">
-        @Html.LabelFor(c => c.ProductPrice, new { @class = "form-label" })
-        @Html.TextBoxFor(c => c.ProductPrice, htmlAttributes: new { @class = "form-control", @readonly = "readonly" })
+        @Html.LabelFor(c => c.Price, new { @class = "form-label" })
+        @Html.TextBoxFor(c => c.Price,  new { @class = "form-control", @readonly = "readonly" })
     </div>
 </form>
+

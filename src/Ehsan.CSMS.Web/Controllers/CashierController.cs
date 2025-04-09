@@ -1,132 +1,92 @@
-﻿using Ehsan.CSMS.Dtos;
+﻿using Ehsan.CSMS.Dtos.CashierDto;
+using Ehsan.CSMS.Entities;
 using Ehsan.CSMS.IService;
 using Ehsan.CSMS.Models;
-using Ehsan.CSMS.Web.Models;
-using IdentityModel.OidcClient;
-using Microsoft.AspNetCore.Http;
+using Ehsan.CSMS.Web.Filters.ActionFilter;
+using Ehsan.CSMS.Web.Models.CashierViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using YamlDotNet.Core.Tokens;
 
-namespace Ehsan.CSMS.Web.Controllers
+namespace Ehsan.CSMS.Web.Controllers;
+
+public class CashierController : Controller
 {
-    public class CashierController : Controller
+    private readonly ICashierService _cashierService;
+    public CashierController(ICashierService CashierDtoService)
     {
-        public  ICashierService _CashierDtoService;
-
-        public CashierController(ICashierService CashierDtoService)
+        _cashierService = CashierDtoService;
+    }
+    // GET: CashierController
+    //[TypeFilter(typeof(SearchSelectionActionFilter))]
+    public async Task<IActionResult> Index(CashierViewModel cashierViewModel)
+    {
+        if (cashierViewModel.SearchCriteria is null)
         {
-            _CashierDtoService =  CashierDtoService;
+            cashierViewModel.SearchCriteria = new CashierSearchCriteria();
         }
-        // GET: CashierController
-        public async Task<ActionResult> Index()
+        cashierViewModel.Cashiers = await _cashierService.SearchAsync(cashierViewModel.SearchCriteria);
+        return View(cashierViewModel);
+    }
+
+    // GET: CashierController/Details/5
+    public async Task<IActionResult> Details(Guid? id)
+    {
+        var cashier = await _cashierService.GetByIdAsync(id);
+        if (cashier is null)
         {
-            var cashiers = await _CashierDtoService.GetAllAsync();
-            CashierViewModel cashierViewModel = new CashierViewModel();
-            cashierViewModel.Cashiers = cashiers;
-          
-
-            return View(cashierViewModel);
+            return RedirectToAction(nameof(Index));
         }
+        return View(cashier);
+    }
 
-        // GET: CashierController/Details/5
-        public async  Task<ActionResult> Details(int id)
+    //GET: CashierController/Create
+    public IActionResult Create()
+    {
+        return View();
+    }
+    // POST: CashierController/Create
+    [HttpPost]
+    [TypeFilter(typeof(ModelValidatorActionFilter))]
+    public async Task<IActionResult> Create(CashierAddRequest? cashierRequest)
+    {
+        await _cashierService.AddAsync(cashierRequest);
+        return RedirectToAction(nameof(Index)); 
+    }
+
+    //// GET: CashierController/Edit/5
+    public async Task<IActionResult> Edit(Guid? id)
+    {
+        var cashier = await _cashierService.GetByIdAsync(id);
+        if (cashier == null)
         {
-            var cashier = await _CashierDtoService.GetbyIdAsync(id);
-            return View(cashier);
+            return RedirectToAction(nameof(Index));
         }
-
-        // GET: CashierController/Create
-        public ActionResult Create()
+        var cashierUpdateRequest = new CashierUpdateRequest()
         {
-            return View();
-        }
-        // POST: CashierController/Create
-        [HttpPost]
-       // [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(CashierDto casherdto)
+            Id = cashier.Id,
+            Name = cashier.Name
+        };
+        return View(cashierUpdateRequest);
+    }
+
+    //// POST: CashierController/Edit/
+    [HttpPost]
+    [TypeFilter(typeof(ModelValidatorActionFilter))]
+    public async Task<ActionResult> Edit(CashierUpdateRequest? cashierRequest)
+    {
+        await _cashierService.UpdateAsync(cashierRequest);
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<ActionResult> Delete(Guid? id)
+    {
+       var isDeleted = await _cashierService.DeleteByIdAsync(id);
+        if (isDeleted)
         {
-            try
-            {
-                    await _CashierDtoService.AddAsync(casherdto);
-                    return RedirectToAction(nameof(Index));   
-            }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(Index));
         }
-
-        // GET: CashierController/Edit/5
-        public async Task<ActionResult>  Edit(int id)
-        {
-            var cashier = await _CashierDtoService.GetbyIdAsync(id);
-            return View(cashier);
-        }
-
-        // POST: CashierController/Edit/5
-        [HttpPost]
-       
-        public async Task<ActionResult> Edit(CashierDto ashierDto)
-        {
-            try
-            {
-                 await _CashierDtoService.UpdateAsync(ashierDto);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: CashierController/Delete/5
-        //public ActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
-
-        // POST: CashierController/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteCashier(int id)
-        {
-            try
-            {
-                await _CashierDtoService.DeleteByIdAsync(id);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        
-        public async Task<ActionResult> SearchCashier(CashierViewModel cashierViewModel)
-        {
-            if (cashierViewModel.SearchCriteria == null)
-                cashierViewModel.SearchCriteria = new CSMS.Models.CashierSearchCriteria();
-
-            var cashiers= await _CashierDtoService.SearchAsync(cashierViewModel.SearchCriteria);
-            cashierViewModel.Cashiers = cashiers;
-            return View("Index", cashierViewModel);
-                        
-        }
-
-
-        public async Task<string> getCashierNameById(int id)
-        {
-           return await _CashierDtoService.GetCashierNamebyId(id);
-        }
-
-       
-
-
-
-
+        return BadRequest("Failed to delete the cashier.");
     }
 }
 

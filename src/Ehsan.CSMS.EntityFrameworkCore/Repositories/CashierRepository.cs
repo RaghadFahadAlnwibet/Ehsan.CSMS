@@ -1,160 +1,78 @@
 ﻿using Ehsan.CSMS.Entities;
 using Ehsan.CSMS.EntityFrameworkCore;
-using System;
 using Ehsan.CSMS.IRepositories;
+using Ehsan.CSMS.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
-using Ehsan.CSMS.Models;
 
-namespace Ehsan.CSMS.Repositories
+namespace Ehsan.CSMS.Repositories;
+/// <summary>
+/// Pure database interactions for cashier entity.
+/// </summary>
+internal class CashierRepository : EfCoreRepository<CSMSDbContext, Cashier>, ICashierRepository
 {
-    internal class CashierRepository: EfCoreRepository<CSMSDbContext, Cashier>, ICashierRepository
+    public CashierRepository(IDbContextProvider<CSMSDbContext> dbContextProvider) : base(dbContextProvider) { }
+
+    public async Task<Cashier> AddAsync(Cashier cashier)
     {
-        public CashierRepository(IDbContextProvider<CSMSDbContext> dbContextProvider): base(dbContextProvider) { }
+        return await InsertAsync(cashier);
+    }
 
-        public async Task AddAsync(Cashier cashier)
+    public async Task<bool> DeleteByIdAsync(Guid id)
+    {
+        var dbContext = await GetDbContextAsync();
+        var cashierToDelete = await dbContext.Cashiers.FindAsync(id);
+        if (cashierToDelete is null)
         {
-            try
-            {
-               await base.InsertAsync(cashier);
-            }
-            catch (DbException exception) 
-            { 
-                Console.WriteLine(exception.Message.ToString());  
-            }
+            return false;
         }
-        public async Task AddManyAsync(IEnumerable<Cashier> cashiers)
+        await DeleteAsync(cashierToDelete);
+        return true;
+    }
+
+    public async Task<List<Cashier>> GetAllAsync()
+    {
+        var dbContext = await GetDbContextAsync();
+        return await dbContext.Cashiers.ToListAsync();
+    }
+
+    public async Task<Cashier?> GetByIdAsync(Guid id)
+    {
+        var dbContext = await GetDbContextAsync();
+        return await dbContext.Cashiers.FindAsync(id);
+    }
+
+    public async Task<List<Cashier>> SearchAsync(CashierSearchCriteria cashierSearchCriteria)
+    {
+        var dbContext = await GetDbContextAsync();
+        var cashier = await dbContext.Cashiers
+                        .WhereIf(cashierSearchCriteria.Id != null, c => c.Id == cashierSearchCriteria.Id)
+                        .WhereIf(!string.IsNullOrEmpty(cashierSearchCriteria.Name),
+                        c => c.Name!.Contains(cashierSearchCriteria.Name!))
+                       .ToListAsync();
+        return cashier;
+
+    }
+
+    public async Task<Cashier> UpdateAsync(Cashier cashier)
+    {
+        var dbContext = await GetDbContextAsync();
+        var existingCashier = await dbContext.Cashiers.FindAsync(cashier.Id);
+        if(existingCashier == null)
         {
-            try
-            {
-                await base.InsertManyAsync(cashiers);
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message.ToString());
-            }
-        }
-        public async Task DeleteAsync(Cashier cashier)
-        {
-            try
-            {
-               await base.DeleteAsync(cashier);
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message.ToString());
-            }
-        }
-        public async Task DeleteByIdAsync(int id)
-        {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                await dbcontext.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM Cashier WHERE Id= {id}");
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message);
-            }
-        }
-        public async Task UpdateAsync(Cashier cashier)
-        {
-            try
-            {
-                await base.UpdateAsync(cashier);
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message.ToString());
-            }
-        }
-        public async Task UpdateCashierNameAsync(int id, string name)
-        {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                await dbcontext.Database.ExecuteSqlInterpolatedAsync($"Update Cashier SET CashierName = {name} WHERE Id = {id}");
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message.ToString());
-            }
-        }
-        public async Task<List<Cashier>> GetAllAsync()
-        {
-            try
-            {
-                return await base.GetListAsync();
-            }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving cashiers.", exception);
-            }
-        }
-        public async Task<Cashier> GetByNameAsync(string name)
-        {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                var cashiers = await dbcontext.Cashiers.Where(c => c.CashierName == name).FirstOrDefaultAsync<Cashier>();
-                return cashiers;  
-            }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving cashiers.", exception);
-            }
-        }
-        public async Task<Cashier> GetbyIdAsync(int id)
-        {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                var cashier = await dbcontext.Cashiers.Where(c=> c.Id == id).FirstOrDefaultAsync<Cashier>();
-                return cashier;
-            }
-            catch(DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving cashiers.", exception);
-            }
+            return cashier;
         }
 
-        public async Task<List<Cashier>> SearchAsync(CashierSearchCriteria cashierSearchCriteria)
-        {
-                var dbContext = await base.GetDbContextAsync();
-                try
-                {                    var cashier = await dbContext.Cashiers
-                                                 .WhereIf(cashierSearchCriteria.Id!=null ,c => c.Id==cashierSearchCriteria.Id)
-                                                 .WhereIf(!string.IsNullOrEmpty( cashierSearchCriteria.CashierName), c => c.CashierName.Contains( cashierSearchCriteria.CashierName))
-                                                 .ToListAsync();//  await dbContext.Cashiers.ToListAsync(); 
+        existingCashier.Name = cashier.Name;
+        //var a = dbContext.Entry(existingCashier).State;
 
-                return cashier;
-                }
-                catch (DbException exception)
-                {
-                    throw new InvalidOperationException("An error occurred while searching for the cashier.", exception);
-                }
-            
-
-        }
-
-        public async Task<string> GetCashierNamebyId(int id)
-        {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                var cashierName = await dbcontext.Cashiers.Where(c => c.Id == id).Select(c=>c.CashierName).FirstOrDefaultAsync();
-                return cashierName;
-            }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving cashiers.", exception);
-            }
-        }
+        await dbContext.SaveChangesAsync();
+        return cashier;
     }
 }
+

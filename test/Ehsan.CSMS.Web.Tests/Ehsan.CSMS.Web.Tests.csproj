@@ -3,7 +3,7 @@
   <Import Project="..\..\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
@@ -14,9 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
-    <PackageReference Include="Volo.Abp.AspNetCore.TestBase" Version="8.2.2" />
+    <PackageReference Include="jQuery" Version="3.7.1" />
+    <PackageReference Include="jQuery.Validation" Version="1.21.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.TestBase" Version="9.1.0" />
     <ProjectReference Include="..\Ehsan.CSMS.Application.Tests\Ehsan.CSMS.Application.Tests.csproj" />
     <ProjectReference Include="..\..\src\Ehsan.CSMS.Web\Ehsan.CSMS.Web.csproj" />
     <ProjectReference Include="..\Ehsan.CSMS.EntityFrameworkCore.Tests\Ehsan.CSMS.EntityFrameworkCore.Tests.csproj" />

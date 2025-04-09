@@ -1,148 +1,96 @@
-﻿using AutoMapper;
-using Ehsan.CSMS.Dtos;
+﻿using Ehsan.CSMS.Dtos.ProductDto;
 using Ehsan.CSMS.Entities;
+using Ehsan.CSMS.Helper;
 using Ehsan.CSMS.IRepositories;
 using Ehsan.CSMS.IService;
 using Ehsan.CSMS.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
-using Volo.Abp.ObjectMapping;
 
-namespace Ehsan.CSMS.Services
+namespace Ehsan.CSMS.Services;
+
+public class ProductService : ApplicationService, IProductService
 {
-    public class ProductService : ApplicationService, IProductService
+    private readonly IProductRepository _productRepository;
+    public ProductService(IProductRepository productRepository)
     {
-        private readonly IProductRepository _ProductRepository;
-        public ProductService(IProductRepository IProductRepository)
+        _productRepository = productRepository;
+    }
+
+    public async Task<ProductResponse> AddAsync(ProductAddRequest? product)
+    {
+        if (product == null)
+        { throw new ArgumentNullException(nameof(product)); }
+        ValidationHelper.ValidateModel(product);
+        if (await _productRepository.GetBynameAsync(product.Name!) is not null)
+        { throw new ArgumentException($"{product.Name} already exists."); }
+
+        var productEntity = ObjectMapper.Map<ProductAddRequest, Product>(product);
+        var addedProduct = await _productRepository.AddAsync(productEntity);
+        return ObjectMapper.Map<Product, ProductResponse>(addedProduct);
+    }
+
+    public Task<bool> DeleteByIdAsync(Guid? id)
+    {
+        if (id == null)
+        { throw new ArgumentNullException(nameof(id)); }
+        return _productRepository.DeleteByIdAsync(id.Value);
+    }
+
+    public async Task<IEnumerable<ProductResponse>> GetAllAsync()
+    {
+        var products = await _productRepository.GetAllAsync();
+        return ObjectMapper.Map<List<Product>, List<ProductResponse>>(products);
+    }
+
+    public async Task<ProductResponse?> GetByIdAsync(Guid? id)
+    {
+        if (id == null)
+        { throw new ArgumentNullException(nameof(id)); }
+        var productEntity = await _productRepository.GetByIdAsync(id.Value);
+        return ObjectMapper.Map<Product?, ProductResponse>(productEntity);
+    }
+
+    public async Task<double?> GetPriceById(Guid? Id)
+    {
+        if (Id == null)
+        { throw new ArgumentNullException(nameof(Id)); }
+        return await _productRepository.GetPriceById(Id.Value);
+    }
+    public async Task<IEnumerable<ProductResponse>> SearchAsync(ProductSearchCriteria searchCriteria)
+    {
+        var products = await _productRepository.SearchAsync(searchCriteria);
+        return ObjectMapper.Map<List<Product>, List<ProductResponse>>(products);
+    }
+
+    public async Task<ProductResponse> UpdateAsync(ProductUpdateRequest? product)
+    {
+        if (product == null)
+        { throw new ArgumentNullException(nameof(product)); }
+        ValidationHelper.ValidateModel(product);
+        if(product.Id == Guid.Empty)
         {
-            _ProductRepository = IProductRepository;
+            throw new ArgumentNullException(nameof(product.Id));
         }
 
-        public async Task AddAsync(ProductDto product)
+        // unique check
+        var productToCheck = await _productRepository.GetBynameAsync(product.Name!);
+        if (productToCheck is not null && productToCheck.Id != product.Id)
+        { throw new ArgumentException($"{product.Name} already exists."); }
+
+        // valid id check
+        var productToUpdate = await _productRepository.GetByIdAsync(product.Id);
+        if(productToUpdate == null)
         {
-            try
-            {
-                var productEntity = ObjectMapper.Map<ProductDto, Product>(product);
-                await _ProductRepository.AddAsync(productEntity);
-            }
-            catch(DbException exception)
-            {
-                new InvalidOperationException("Failed to add product", exception);
-            }  
+            { throw new ArgumentException($"Invalid Product {0}", nameof(Product.Id)); }
         }
 
-        public async Task DeleteAsync(ProductDto product)
-        {
-            try 
-            {
-                var productEntity = ObjectMapper.Map<ProductDto, Product>(product);
-                await _ProductRepository.DeleteAsync(productEntity);
-            } catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to delete product", exception);
-            }
-        }
-
-        public async Task DeletebyIdAsync(int id)
-        {
-            try 
-            {
-                await _ProductRepository.DeletebyIdAsync(id);
-            }
-            catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to delete product", exception);
-            }
-        }
-
-        public async Task<List<ProductDto>> GetAllAsync()
-        {
-            var products = await _ProductRepository.GetAllAsync();
-            var productDtos = ObjectMapper.Map<List<Product>, List<ProductDto>>(products);
-            return productDtos;
-        }
-
-        public async Task<ProductDto> GetbyIdAsync(int id)
-        {
-            try 
-            {
-                var products = await _ProductRepository.GetbyIdAsync(id);
-                var productDtos = ObjectMapper.Map<Product, ProductDto>(products);
-                return productDtos;
-            } catch (DbException exception) 
-            {
-                return null;
-            } 
-        }
-
-        public async Task<double> GetPricePerUnintbyIdAsync(int id)
-        {
-            try
-            {
-                double ProductPrice  = await _ProductRepository.GetPricePerUnintbyIdAsync(id);
-                return ProductPrice;
-            }
-            catch (DbException exception)
-            {
-                return 0;
-            }
-        }
-
-        public async Task<List<ProductDto>> SearchAsync(ProductSearchCriteria productSearchCriteria)
-        {
-            try
-            {
-                var products = await _ProductRepository.SearchAsync(productSearchCriteria);
-                var productDtos = ObjectMapper.Map<List<Product>, List<ProductDto>>(products);
-                return productDtos;
-            }
-            catch(DbException exception)
-            {
-                return null;
-            }
-
-        }
-
-        public async Task UpdateAsync(ProductDto product)
-        {
-            try 
-            {
-                var productEntity = ObjectMapper.Map<ProductDto, Product>(product);
-                await _ProductRepository.UpdateAsync(productEntity);
-            }
-            catch (DbException exception)
-            { 
-                new InvalidOperationException("Failed to update product", exception);
-            }
-        }
-
-        public async Task UpdateProductNameAsync(int id, string name)
-        {
-            try 
-            {
-                await _ProductRepository.UpdateProductNameAsync(id, name);
-            }
-            catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to update product", exception);
-            }
-        }
-
-        public async Task UpdateProductPriceAsync(int id, double price)
-        {
-            try
-            {
-                await _ProductRepository.UpdateProductPriceAsync(id, price);
-            }
-            catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to update product", exception);
-            }
-        }
+        productToUpdate.Name = product.Name;
+        productToUpdate.Price = product.Price;
+        productToUpdate.CategoryId = product.CategoryId;
+        var updatedProduct = await _productRepository.UpdateAsync(productToUpdate);
+        return ObjectMapper.Map<Product, ProductResponse>(updatedProduct);
     }
 }

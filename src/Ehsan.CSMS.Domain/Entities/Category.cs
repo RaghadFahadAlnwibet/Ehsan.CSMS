@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Volo.Abp.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Domain.Entities.Auditing;
-// add-migration addcategorytable: After adding all tabl
-
-namespace Ehsan.CSMS.Entities
+namespace Ehsan.CSMS.Entities;
+/// <summary>
+/// Represents a domain model for category entity (POCO Class).
+/// </summary>
+public class Category : CreationAuditedEntity<Guid>
 {
-    public class Category:Entity<int>
-    {
-        public string CategoryName { get; set; } = null!;
-
-        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
-    }
+    [Required]
+    [StringLength(40)]
+    public string? Name { get; set; }
+    // Virtual navigation property for lazy loading
+    public virtual ICollection<Product>? Products { get; set; }
 }

@@ -99,10 +99,18 @@ a{
     color: white;
 }
 
+
+
 * {
     font-size: 16px;
 }
 
 .reset-btn:hover {
     color: gray;
+}
+
+
+.sumbit:hover {
+    background-color: gray;
+    color: white;
 }

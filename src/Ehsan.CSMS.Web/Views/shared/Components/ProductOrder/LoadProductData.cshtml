@@ -1,0 +1,45 @@
+﻿@model CreateOrderViewModel
+
+@{
+    ViewData["Title"] = "View";
+}
+
+
+@* @* Strongly Types Partial View *@
+    <div class="row mb-3 partialRow" id="">
+        <div class="col">
+        <select id="SelectedProduct" placeholder="Select Product..." autocomplete="off">
+            <option value="">Select Product...</option>
+            @foreach (var product in Model.Products)
+            {
+                <option value="@product.Id"
+                        data-product-name="@product.Name"
+                        data-category-name="@product.Category.Name"
+                        data-price="@product.Price">
+                    @product.Name
+                </option>
+            }
+        </select>
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(c => c.PricePerUnit, new { @class = "form-control", @placeholder = "Price SAR", @readonly = "readonly" })
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(c => c.Quantity, new { @type = "number", @class = "form-control", @placeholder = "Quantity" })
+        </div>
+        <div class="col">
+            @Html.TextBoxFor(c => c.SubTotals, new { @class = "form-control", @placeholder = "Total Price", @readonly = "readonly" })
+        </div>
+    <div class="col-md-2 text-center">
+        <button type="button" class="btn btn-danger remove-btn">
+            <i class="fas fa-trash-alt"></i> Remove
+        </button>
+    </div>
+
+   
+    </div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.1/js/tom-select.complete.js"></script>
+<script src="~/js/ProductScripts/LoadProductScript.js"></script>
+

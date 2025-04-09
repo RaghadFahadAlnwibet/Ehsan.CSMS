@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ehsan.CSMS.Constant;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ehsan.CSMS.Constant;
 
-namespace Ehsan.CSMS.Models
+namespace Ehsan.CSMS.Models;
+
+public class CashierSearchCriteria
 {
-    public class CashierSearchCriteria
-    {
-        public int? Id { get; set; }
+    [Display(Name = CashierFields.CashierId)]
+    public Guid? Id { get; set; }
 
-        [Display(Name = Fields.CashierFields.CashierName)]
-        public string? CashierName { get; set; }
-
-
-    }
+    [Display(Name = CashierFields.CashierName)]
+    public string? Name { get; set; }
 }

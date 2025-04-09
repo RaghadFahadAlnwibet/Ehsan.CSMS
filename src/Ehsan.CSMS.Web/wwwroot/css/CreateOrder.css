@@ -1,0 +1,63 @@
+﻿
+
+.ts-wrapper .option {
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    display: block;
+}
+
+.ts-wrapper .option .title {
+    font-weight: bold;
+    font-size: 10px;
+    color: #333;
+    display: block;
+}
+
+.ts-wrapper .option .option-category { 
+    font-size: 12px;
+    color: #777;
+    display: block;
+}
+
+.ts-wrapper .item {
+    font-size: 12px;
+    padding-top: 3px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.075);
+    border-radius: 5px;
+}
+
+.ts-wrapper .item .productName {
+    font-weight: bold;
+    color: #333;
+}
+
+.ts-wrapper .item .item-category { 
+    font-size: 12px;
+    color: #999;
+}
+
+#addItemBtn:hover {
+    color: #ff5722;
+}
+
+#customer-data .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.checkButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#btn:enabled {
+    background-color: #ff5722; 
+}
+
+#btn:disabled {
+    background-color: gray; 
+}

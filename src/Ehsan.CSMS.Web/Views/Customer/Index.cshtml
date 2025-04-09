@@ -1,44 +1,38 @@
-﻿@using Ehsan.CSMS.Web.Models
-@model CostumerViewModel
-@{
-    ViewData["Title"] = "Home Costumer";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+﻿@model CostumerViewModel
+
+@{ 
+     ViewData["Title"] = "Home Costumer"; 
 }
-<head>
-    <link rel="stylesheet" href="~/css/index.css" />
-</head>
+
+<link rel="stylesheet" href="~/css/index.css" asp-append-version="true"/>
 
 
-<form method="post" asp-action="SearchCostumer" asp-controller="Customer" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+
+<form method="post" asp-action="Index" asp-controller="Customer" enctype="multipart/form-data" class="p-4 shadow-sm border rounded mb-5">
         <h1 class="text-dark mb-4">Search customer</h1>
 
     <div class="form-group pb-3">
         @Html.LabelFor(c => c.costumerSearchCriteria.Id)
-
         @Html.TextBoxFor(c => c.costumerSearchCriteria.Id, new { @class = "form-control", @placeholder = "Enter customer ID" })
     </div>
     <div class="form-group pb-3">
-        @Html.LabelFor(c => c.costumerSearchCriteria.CustomerName)
-        @Html.TextBoxFor(c => c.costumerSearchCriteria.CustomerName, new { @class = "form-control", @placeholder = "Enter customer ID" })
+        @Html.LabelFor(c => c.costumerSearchCriteria.Name)
+        @Html.TextBoxFor(c => c.costumerSearchCriteria.Name, new { @class = "form-control", @placeholder = "Enter customer Name" })
 
     </div> <div class="form-group pb-3">
-        @Html.LabelFor(c => c.costumerSearchCriteria.mobileNumber)
-        @Html.TextBoxFor(c => c.costumerSearchCriteria.mobileNumber, new { @class = "form-control", @placeholder = "Enter customer ID" })
-
+        @Html.LabelFor(c => c.costumerSearchCriteria.MobileNumber)
+        @Html.TextBoxFor(c => c.costumerSearchCriteria.MobileNumber, new { @class = "form-control", @placeholder = "Enter customer Mobile Number" })
     </div>
 
     
-    <button type="submit" class="btn btn mt-3 mainbtn" style="background-color: #ff5722; color: white">Search</button>
-    <a type="button" asp-controller="Customer" asp-action="SearchCostumer" value="Reseat" class="btn btn mt-3 reset-btn">Reset</a>
+    <button type="submit" class="btn btn mt-3 mainbtn sumbit">Search</button>
+    <a type="button" asp-controller="Customer" asp-action="Index" class="btn btn mt-3 reset-btn">Reset</a>
 </form>
 
 
-
-<br />
-<br />
 <div class="header-container">
     <h3 class="text-dark mb-4">Customer List</h3>
-    <a href="/Customer/Create">
+    <a asp-action="Create" asp-controller="Customer">
         <i class='bx bx-plus'></i>
         Add Customer
     </a>
@@ -59,16 +53,16 @@
     {
         <tr>
             <td>@Html.Encode(customer.Id)</td>
-            <td>@Html.Encode(customer.CustomerName)</td>
-            <td>@Html.Encode(customer.ContactInfo)</td>
-            <td>@Html.Encode(customer.LoyaltyPoints)</td>
+            <td>@Html.Encode(customer.Name)</td>
+            <td>@Html.Encode(customer.MobileNumber)</td>
+            <td>@Html.Encode(customer.LoyaltyPoint)</td> 
             <td>
                 <div class="dropdown">
                     <button class="dropdown-button">⋮</button>
                     <div class="dropdown-content">
                         @Html.ActionLink("Edit", "Edit", new { id = customer.Id })
                         @Html.ActionLink("Details", "Details", new { id = customer.Id })
-                        @Html.ActionLink("Delete", "DeleteCostumer", "Customer", new { id = customer.Id })
+                        @Html.ActionLink("Delete", "Delete", "Customer", new { id = customer.Id })
                     </div>
                 </div>
             </td>

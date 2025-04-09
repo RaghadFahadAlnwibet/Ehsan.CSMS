@@ -1,228 +1,156 @@
-﻿using Castle.Core.Resource;
-using Ehsan.CSMS.Dtos;
+﻿using Ehsan.CSMS.Dtos.OrderDetailsDto;
+using Ehsan.CSMS.Dtos.OrderDto;
 using Ehsan.CSMS.Entities;
 using Ehsan.CSMS.IService;
 using Ehsan.CSMS.Models;
-using Ehsan.CSMS.Services;
-using Ehsan.CSMS.Web.Components;
+using Ehsan.CSMS.Web.Filters.ActionFilter;
 using Ehsan.CSMS.Web.Models;
-using JetBrains.Annotations;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis;
+using Rotativa.AspNetCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace Ehsan.CSMS.Web.Controllers
+namespace Ehsan.CSMS.Web.Controllers;
+
+public class OrderController : Controller
 {
-    public class OrderController : Controller
+    private readonly IOrderService _orderService;
+    public OrderController(
+        IOrderService orderService)
     {
-        public IOrderService _OrderService;
-        public ICostumerService _CostumerService;
-        public ICashierService _CashierService;
-
-        public IOrderDeatilsService _OrderDeatilsService;
-
-        public IProductService _ProductService;
-
-
-        public OrderController(IOrderService orderService, ICostumerService CostumerService, ICashierService CashierService, IProductService productService, IOrderDeatilsService orderDeatilsService)
+        _orderService = orderService;
+    }
+    // GET: Order
+    [TypeFilter(typeof(CatchierListActionFilter))]
+    public async Task<IActionResult> Index(OrderViewModel orderViewModel)
+    {
+        if(orderViewModel.OrderSearchCriteria == null)
         {
-            _OrderService = orderService;
-            _CostumerService = CostumerService;
-            _CashierService = CashierService;
-            _ProductService = productService;
-            _OrderDeatilsService = orderDeatilsService;
+            orderViewModel.OrderSearchCriteria = new OrderSearchCriteria();
         }
-        // GET: Order
-        public async Task<ActionResult> Index()
+        orderViewModel.orders = 
+            await _orderService.SearchOrderAsync(orderViewModel.OrderSearchCriteria);
+        
+        return View(orderViewModel);
+    }
+
+    [HttpGet]
+    [TypeFilter(typeof(CatchierListActionFilter))]
+    public async Task<IActionResult> Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [TypeFilter(typeof(CatchierListActionFilter))]
+    public async Task<IActionResult> Create([FromBody] OrderAddRequest? orderRequest)
+    {
+        var redirectUrl = Url.Action("Index", "Order");
+        if (orderRequest == null)
         {
-            var orderList = await _OrderService.GetAllAsync();
-            OrderViewModel order = new OrderViewModel
-            {
-                orders = orderList
-            };
-            // inested of model you can have store procedure 
-            await LoadLookups();
-            return View(order);
+            return Json(new { redirectTo = redirectUrl });
         }
-
-        public async Task<OrderDto> GetOrderbyId(int orderId)
+        if (!ModelState.IsValid)
         {
-            var order = await _OrderService.GetByIdAsync(orderId);
-            return order;
+            return Json(new { error = "Invalid data", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
-        // GET: Order/Details/5
-        public async Task<ActionResult> Details(int id)
-        {
-            var order = await _OrderService.GetByIdAsync(id);
-           
+        await _orderService.AddAsync(orderRequest);
 
-            return View(order);
+        return Json(new { redirectTo = redirectUrl });
+    }
+
+    public async Task<IActionResult> Details(Guid? id)
+    {
+        var order = await _orderService.GetByIdAsync(id);
+        if(order == null)
+        {
+            return RedirectToAction("Index");   
         }
+        return View(order);
+    }
 
-        private async Task LoadLookups()
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid? id)
+    {
+        var order =  await _orderService.GetByIdAsync(id);
+        if(order == null || order.OrderDetailsResponses == null)
         {
-            var cashiers = await _CashierService.GetAllAsync();
-            var products = await _ProductService.GetAllAsync();
-            ViewBag.Cashiers = new SelectList(cashiers, "Id", "CashierName");
-            ViewBag.Products = new SelectList(products, "Id", "ProductName");
-
-
-        }
-        // GET: Order/Create
-        public async Task<ActionResult> Create()
-        {
-           
-            await LoadLookups();
-            return View();
-        }
-
-        // POST: Order/Create
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateOrder(CreateOrderViewModel orderView)
-        {
-            if (orderView.order.CreationTime == DateTime.MinValue)
-            {
-                orderView.order.CreationTime = DateTime.Now;
-            }
-
-            var CartLength = orderView.selectedPrpducts.Count();
-            for (int i = 0; i < CartLength; i++)
-            {
-                orderView.order.OrderDetails.Add(new OrderDeatilsDto()
-                {
-                    ProductId = orderView.selectedPrpducts[i],
-                    Quantity = orderView.qunatity[i],
-                    PricePerUnit = orderView.pricePerUnit[i],
-                    TotalPrice = orderView.subTotals[i]
-                });
-            }
-
-            await _OrderService.AddAsync(orderView.order);
-
             return RedirectToAction(nameof(Index));
         }
+        var orderUpdateRequest = new OrderUpdateRequest();
+        var orderDetailsUpdateRequest = new List<OrderDetailsUpdateRequest>();
 
-       public async Task<ActionResult> ShowInvoice(int orderId)
+        orderUpdateRequest.Id = order.Id;
+        orderUpdateRequest.orderStatus = order.OrderStatus;
+        foreach (var od in order.OrderDetailsResponses)
         {
-            var order = await _OrderService.GetByIdAsync(orderId);
-            return View("invoice", order);
-        }
-
-        public async Task<PartialViewResult> Customerinfo(string ContactInfo)
-        {
-            var customer = await _CostumerService.GetCustomerByMobileNumberAsync(ContactInfo);
-            if (customer == null)
+            orderDetailsUpdateRequest.Add(new OrderDetailsUpdateRequest()
             {
-                customer = new CostumerDto()
-                {
-                    CustomerName = string.Empty,
-                    ContactInfo = string.Empty
-                };
-            }
-            OrderViewModel orderView = new OrderViewModel()
-            {
-                order = new OrderDto(){
-                  Customer = customer,
-                }
-            };
-            return PartialView("_createCustomer", orderView); // draw 
+                ProductID = od.ProductId,
+                Quantity = od.Quantity,
+                Product = od.Product,
+                TotalPrice = od.TotalPrice,
+            });
         }
-
-        public async Task<int> GetNoOfItems(int orderId)
-        {
-            var noOfItems = await _OrderDeatilsService.GetNoOfItemsByOrderId(orderId);
-            return noOfItems;
-        }
-
-        public async Task<PartialViewResult> ProductInfo()
-        {
-            var products = await _ProductService.GetAllAsync();
-            CreateOrderViewModel createOrderViewModel = new CreateOrderViewModel() { 
-                products = products
-            };
-            return PartialView("_createProduct", createOrderViewModel); // draw 
-        }
-        // GET: Order/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            var order = await _OrderService.GetByIdAsync(id);
-            await LoadLookups();
-            return View(order);
-        }
-        // POST: Order/Edit/5
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(OrderDto order)
-        {
-            try
-            {
-                if (order.LastModificationTime == DateTime.MinValue)
-                {
-                    order.LastModificationTime = DateTime.Now; 
-                }
-
-                if (order.CreationTime == DateTime.MinValue)
-                {
-                    order.CreationTime = DateTime.Now;
-                }
-
-                await _OrderService.UpdateAsync(order);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View(order);
-            }
-        }
-
-        // GET: Order/Delete/5
-        public async Task<ActionResult> DeleteOrder(int id) // on delete cascade 
-        {
-            try
-            {
-                await _OrderService.DeleteByIdAsync(id);
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-        public async Task<ActionResult> filtterByOrderStatus(int id)
-        {
-            var order = await _OrderService.SerachByOrderStatusAsync(id);
-            OrderViewModel orderView = new OrderViewModel()
-            {
-                orders = order
-            };
-            await LoadLookups();
-            TempData["selected"] = id;
-            return View("Index", orderView);
-        }
-        public async Task<ActionResult> SearchFromModelView(OrderViewModel order){
-            if(order.orderSearchCriteria == null)
-                order.orderSearchCriteria = new CSMS.Models.OrderSearchCriteria();
-            try
-            {
-                var Filteredorders = await _OrderService.SearchOrderAsync(order.orderSearchCriteria);
-                order.orders = Filteredorders;
-                await LoadLookups();
-
-                return View("Index", order); 
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        orderUpdateRequest.OrderDetailsUpdateRequest = orderDetailsUpdateRequest;
+        return View(orderUpdateRequest);
     }
+    [HttpPost]
+    public async Task<IActionResult> Edit([FromBody] OrderUpdateRequest? orderRequest)
+    {
+        var redirectUrl = Url.Action("Index", "Order");
+        if (orderRequest == null)
+        {
+            return Json(new { redirectTo = redirectUrl });
+        }
+        if (!ModelState.IsValid)
+        {
+            return Json(new { error = "Invalid data", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+
+        }
+        await _orderService.UpdateAsync(orderRequest);
+
+        return Json(new { redirectTo = redirectUrl });
+    }
+
+    public async Task<OrderResponse?> GetOrderById(Guid? id)
+    {
+        var order = await _orderService.GetByIdAsync(id);
+        return order;
+    }
+
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var isDeleted = await _orderService.DeleteByIdAsync(id);
+        if (isDeleted)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+        
+        return BadRequest("Failed to delete the order.");
+    }
+    public async Task<IActionResult> ShowInvoice(Guid? id)
+    {
+        var order = await _orderService.GetByIdAsync(id);
+        if (order == null)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+        return new ViewAsPdf("Invoice", order, ViewData)
+        {
+            PageMargins = new Rotativa.AspNetCore.Options.Margins()
+            {
+                Top = 20,
+                Right = 20,
+                Bottom = 20,
+                Left = 20
+            },
+            PageOrientation = Rotativa.AspNetCore.Options.Orientation.Landscape
+        };
+
+    }
+
+
 }

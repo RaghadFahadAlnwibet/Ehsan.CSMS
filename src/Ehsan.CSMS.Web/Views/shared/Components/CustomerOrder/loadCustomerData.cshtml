@@ -1,0 +1,18 @@
+﻿@model CustomerUpdateRequest
+
+
+
+
+
+
+@Html.HiddenFor(c => c.Id)
+<div class="col-md-6 col-sm-6 p-4">
+    @Html.LabelFor(c => c.Name, new { @class = "form-label" })
+    @Html.TextBoxFor(c => c.Name, new { @class = "form-control", @placeholder = "Enter Customer Name" })
+    @Html.ValidationMessageFor(c => c.Name, "", new { @class = "text-danger" })
+</div>
+<div class="col-md-6 col-sm-6 p-4">
+    @Html.LabelFor(c => c.MobileNumber, new { @class = "form-label" })
+    @Html.TextBoxFor(c => c.MobileNumber, new { @class = "form-control", @placeholder = "Enter Customer Mobile Number" })
+    @Html.ValidationMessageFor(c => c.MobileNumber, "", new { @class = "text-danger" })
+</div>

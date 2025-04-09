@@ -1,33 +1,40 @@
-﻿@model Ehsan.CSMS.Dtos.ProductDto
+﻿@model ProductAddRequest
 
-@{
-    ViewData["Title"] = "Create Product";
-
-    Layout = "~/Views/Shared/_Layout.cshtml";
+@{ 
+     ViewData["Title"] = "Create Product"; 
 }
 
 
-<form method="post" asp-action="Create" asp-controller="Product" enctype="multipart/form-data" class="p-4 shadow-sm border rounded">
+<form method="post" asp-action="Create" asp-controller="Product" enctype="multipart/form-data" class="p-4 shadow-sm border rounded mb-5">
     <h2 class="mb-4 text-dark">Create Product</h2>
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="mb-3">
         @Html.LabelFor(c => c.CategoryId, new { @class="form-label"})
-        @Html.DropDownListFor(c => c.CategoryId, ViewBag.CategoryList as SelectList, "Select Category", new { @class = "form-control", @required = "required" })
+        @Html.DropDownListFor(c => c.CategoryId, ViewBag.CategoryList as SelectList, "Select Category", new { @class = "form-control" })
         @Html.ValidationMessageFor(c => c.CategoryId, "", new { @class = "text-danger" })
     </div>
     <div class="mb-3">
-        @Html.LabelFor(c => c.ProductName)
-        @Html.TextBoxFor(c => c.ProductName, new { @class = "form-control", @placeholder = "Enter Product Name" })
-        @Html.ValidationMessageFor(c => c.CategoryId, "", new { @class = "text-danger" })
+        @Html.LabelFor(c => c.Name)
+        @Html.TextBoxFor(c => c.Name, new { @class = "form-control", @placeholder = "Enter Product Name" })
+        @Html.ValidationMessageFor(c => c.Name, "", new { @class = "text-danger" })
     </div>
     <div class="mb-3">
-        @Html.LabelFor(c => c.ProductPrice)
-        @Html.TextBoxFor(c => c.ProductPrice, new { @class = "form-control", type = "number", step = "1.0", @placeholder = "Enter Product Price", @required = "required" })
-        @Html.ValidationMessageFor(c => c.CategoryId, "", new { @class = "text-danger" })
+        @Html.LabelFor(c => c.Price)
+        @Html.TextBoxFor(c => c.Price, new { @class = "form-control", @placeholder = "Enter Product Price"})
+        @Html.ValidationMessageFor(c => c.Price, "", new { @class = "text-danger" })
     </div>
     <div class="mb-1">
         <button type="submit" class="btn btn mt-3 w-100" style="background-color: #ff5722; color: white">Save</button>
     </div>
-   @Html.HiddenFor(c=>c.Category)
-</form>
+    @if (ViewBag.Errors is not null)
+    {
+        <div class="text-red ml">
+            <ul>
+                @foreach (string error in ViewBag.Errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+ </form>

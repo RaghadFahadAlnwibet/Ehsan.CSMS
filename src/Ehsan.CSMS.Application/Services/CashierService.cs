@@ -1,133 +1,85 @@
-﻿using System;
+﻿using Ehsan.CSMS.Dtos.CashierDto;
+using Ehsan.CSMS.Entities;
+using Ehsan.CSMS.Helper;
+using Ehsan.CSMS.IRepositories;
+using Ehsan.CSMS.IService;
+using Ehsan.CSMS.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
-using Ehsan.CSMS.IService;
-using Ehsan.CSMS.IRepositories;
-using Ehsan.CSMS.Dtos;
-using System.Data.Common;
-using Ehsan.CSMS.Entities;
-using Volo.Abp.ObjectMapping;
-using static Ehsan.CSMS.Constant.Fields;
-using AutoMapper;
-using Ehsan.CSMS.Models;
 
-namespace Ehsan.CSMS.Services
+namespace Ehsan.CSMS.Services;
+
+public class CashierService : ApplicationService, ICashierService
 {
-    public class CashierService : ApplicationService, ICashierService
+    // DP
+    private readonly ICashierRepository _cashierRepository;
+
+    public CashierService
+        (ICashierRepository cashierRepository)
     {
-        private readonly ICashierRepository _CashierRepository;
-
-        public CashierService(ICashierRepository icashierRepository)
-        {
-            _CashierRepository = icashierRepository;
-        }
-
-        public async Task AddAsync(CashierDto cashier)
-        {
-            try 
-            {
-                var cashierEntity = ObjectMapper.Map<CashierDto, Cashier>(cashier);
-                await _CashierRepository.AddAsync(cashierEntity);
-            } 
-            catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to add chachier", exception);
-            }
-            }
-
-
-        public async Task DeleteByIdAsync(int id)
-        {
-            try 
-            {
-                await _CashierRepository.DeleteByIdAsync(id);
-            }
-            catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to delete chachier", exception);
-            }
-        }
-
-        public async Task UpdateAsync(CashierDto cashier)
-        {
-            try 
-            {
-                var cashierEntity = ObjectMapper.Map<CashierDto, Cashier>(cashier);
-                await _CashierRepository.UpdateAsync(cashierEntity);
-            }catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to update chachier", exception);
-            }
-        }
-
-        public async Task UpdateCashierNameAsync(int id, string name)
-        {
-            try 
-            {
-                await _CashierRepository.UpdateCashierNameAsync(id, name);
-            }
-            catch (DbException exception) 
-            {
-                new InvalidOperationException("Failed to update chachier", exception);
-            }
-        }
-
-        public async Task<List<CashierDto>> GetAllAsync()
-        {
-            try 
-            {
-                var cashiers = await _CashierRepository.GetListAsync();
-                var cashierDtos = ObjectMapper.Map<List<Cashier>, List<CashierDto>>(cashiers);
-                return cashierDtos;
-            }
-            catch (DbException exception)
-            {
-                return null;
-            }
-        }
-
-        public async Task<CashierDto> GetbyIdAsync(int id)
-        {
-            try
-            {
-                var cashier = await _CashierRepository.GetbyIdAsync(id);
-                var cashierDto = ObjectMapper.Map<Cashier, CashierDto>(cashier);
-                return cashierDto;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-
-        public async Task<List<CashierDto>> SearchAsync(CashierSearchCriteria cashierSearchCriteria)
-        {
-            try 
-            {
-                var cashiers = await _CashierRepository.SearchAsync(cashierSearchCriteria);
-                var cashierDtos = ObjectMapper.Map<List<Cashier> , List<CashierDto>>(cashiers);
-                return cashierDtos;
-            }
-            catch (DbException)
-            {
-                return null;
-            }
-        }
-
-        public async Task<string> GetCashierNamebyId(int id)
-        {
-            try
-            {
-                return await _CashierRepository.GetCashierNamebyId(id);
-            }
-            catch (DbException exception)
-            {
-                return null;
-            }
-        }
+        _cashierRepository = cashierRepository;
     }
 
+    public async Task<CashierResponse> AddAsync(CashierAddRequest? cashier)
+    {
+        if (cashier is null)
+        { throw new ArgumentNullException(nameof(cashier)); }
+        // SRP 
+        ValidationHelper.ValidateModel(cashier);
+
+        // from the ApplicationService 
+        var cashierEntity = ObjectMapper.Map<CashierAddRequest, Cashier>(cashier);
+        await _cashierRepository.AddAsync(cashierEntity);
+        return ObjectMapper.Map<Cashier, CashierResponse>(cashierEntity);
+    }
+
+    public Task<bool> DeleteByIdAsync(Guid? id)
+    {
+        if (id is null)
+        { throw new ArgumentNullException(nameof(id)); }
+        return _cashierRepository.DeleteByIdAsync(id.Value);
+    }
+
+    public async Task<IEnumerable<CashierResponse>> GetAllAsync()
+    {
+        var cahiers = await _cashierRepository.GetAllAsync();
+        return ObjectMapper.Map<List<Cashier>, List<CashierResponse>>(cahiers);
+    }
+
+    public async Task<CashierResponse?> GetByIdAsync(Guid? id)
+    {
+        if (id is null)
+        { throw new ArgumentNullException(nameof(id)); }
+        var cashier = await _cashierRepository.GetByIdAsync(id.Value);
+        return ObjectMapper.Map<Cashier?, CashierResponse>(cashier);
+    }
+
+    public async Task<IEnumerable<CashierResponse>> SearchAsync(CashierSearchCriteria searchCriteria)
+    {
+        var cashiers = await _cashierRepository.SearchAsync(searchCriteria);
+        return ObjectMapper.Map<List<Cashier>, List<CashierResponse>>(cashiers);
+    }
+
+    public async Task<CashierResponse> UpdateAsync(CashierUpdateRequest? cashier)
+    {
+        if (cashier is null)
+        { throw new ArgumentNullException(nameof(cashier)); }
+        ValidationHelper.ValidateModel(cashier);
+        if (cashier.Id == Guid.Empty)
+        {
+            throw new ArgumentNullException(nameof(cashier.Id));
+        }
+
+        var cashierToUpdate = await _cashierRepository.GetByIdAsync(cashier.Id);
+        if (cashierToUpdate is null)
+        {
+            { throw new ArgumentException($"Invalid Customer {0}", nameof(cashier.Id)); }
+        }
+
+        cashierToUpdate.Name = cashier.Name;
+        var updatedCashier = await _cashierRepository.UpdateAsync(cashierToUpdate);
+        return ObjectMapper.Map<Cashier, CashierResponse>(updatedCashier); ;
+    }
 }

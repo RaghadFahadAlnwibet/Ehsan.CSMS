@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace Ehsan.CSMS.EntityFrameworkCore;
 
@@ -13,12 +12,12 @@ public class CSMSDbContextFactory : IDesignTimeDbContextFactory<CSMSDbContext>
     public CSMSDbContext CreateDbContext(string[] args)
     {
         var configuration = BuildConfiguration();
-        
+
         CSMSEfCoreEntityExtensionMappings.Configure();
 
         var builder = new DbContextOptionsBuilder<CSMSDbContext>()
             .UseSqlServer(configuration.GetConnectionString("Default"));
-        
+
         return new CSMSDbContext(builder.Options);
     }
 

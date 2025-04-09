@@ -1,12 +1,12 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using OpenIddict.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Localization;
-using OpenIddict.Abstractions;
 using Volo.Abp;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Data;
@@ -60,8 +60,11 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
     {
         if (await _openIddictScopeRepository.FindByNameAsync("CSMS") == null)
         {
-            await _scopeManager.CreateAsync(new OpenIddictScopeDescriptor {
-                Name = "CSMS", DisplayName = "CSMS API", Resources = { "CSMS" }
+            await _scopeManager.CreateAsync(new OpenIddictScopeDescriptor
+            {
+                Name = "CSMS",
+                DisplayName = "CSMS API",
+                Resources = { "CSMS" }
             });
         }
     }
@@ -107,8 +110,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             );
         }
 
-        
-        
+
+
 
 
 
@@ -164,7 +167,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
 
         var client = await _openIddictApplicationRepository.FindByClientIdAsync(name);
 
-        var application = new AbpApplicationDescriptor {
+        var application = new AbpApplicationDescriptor
+        {
             ClientId = name,
             ClientType = type,
             ClientSecret = secret,
@@ -191,7 +195,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
 
         if (!redirectUri.IsNullOrWhiteSpace() || !postLogoutRedirectUri.IsNullOrWhiteSpace())
         {
-            application.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.Logout);
+            application.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.EndSession);
         }
 
         var buildInGrantTypes = new[] {
@@ -248,7 +252,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             if (grantType == OpenIddictConstants.GrantTypes.DeviceCode)
             {
                 application.Permissions.Add(OpenIddictConstants.Permissions.GrantTypes.DeviceCode);
-                application.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.Device);
+                application.Permissions.Add(OpenIddictConstants.Permissions.Endpoints.DeviceAuthorization);
             }
 
             if (grantType == OpenIddictConstants.GrantTypes.Implicit)

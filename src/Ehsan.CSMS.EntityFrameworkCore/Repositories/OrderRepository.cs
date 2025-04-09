@@ -3,185 +3,135 @@ using Ehsan.CSMS.EntityFrameworkCore;
 using Ehsan.CSMS.IRepositories;
 using Ehsan.CSMS.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Polly;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 
 namespace Ehsan.CSMS.Repositories
 {
-    internal class OrderRepository: EfCoreRepository<CSMSDbContext, Order>, IOrderRepository
+    internal class OrderRepository : EfCoreRepository<CSMSDbContext, Order>, IOrderRepository
     {
-        public OrderRepository(IDbContextProvider<CSMSDbContext> dbContextProvider): base(dbContextProvider) { }
-        public async Task AddAsync(Order order)
+        private readonly ILogger<OrderRepository> _logger;
+        //private readonly IDiagnosticContext _diagnosticContext;
+        public OrderRepository(
+            IDbContextProvider<CSMSDbContext> dbContextProvider, 
+            ILogger<OrderRepository> logger) : base(dbContextProvider) 
         {
-            var dbContext = await base.GetDbContextAsync();
-
-            try
-            {
-                await InsertAsync(order);
-
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message);
-                throw new InvalidOperationException("Failed to insert order into the database", exception);
-            }
+            _logger = logger;
         }
 
-        public async Task AddManyAsync(IEnumerable<Order> order)
+        public async Task<Order> AddAsync(Order order)
         {
-            try
-            {
-                await base.InsertManyAsync(order);
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message.ToString());
-            }
+            _logger.LogInformation("{ClassName}.{MethodName}", 
+                nameof(OrderRepository), 
+                nameof(AddAsync));
+            // dublicate key 
+            return await InsertAsync(order);
         }
-        public async Task DeleteAsync(Order order)
-        {
-            try
-            {
-                await base.DeleteAsync(order);
-            }
-            catch (DbException exceptio)
-            {
-                Console.WriteLine(exceptio.Message.ToString());
-            }
-        }
-     
 
-        public async Task DeleteByIdAsync(int id)
+        public async Task<bool> DeleteByIdAsync(Guid id)
         {
-            var dbcontext = await GetDbContextAsync();
-            try
+            var dbContext = await GetDbContextAsync();
+            var ordersToDelete = await dbContext.Orders.FindAsync(id);
+            if (ordersToDelete is null)
             {
-                await dbcontext.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM [Order] WHERE Id= {id}");
+                return false;
             }
-            catch (DbException ex)
-            {
-                Console.WriteLine(ex.Message.ToString());
-            }
+            await DeleteAsync(ordersToDelete);
+            return true;
         }
-        public async Task UpdateAsync(Order order)
-        {
-            try
-            {
 
-               await base.UpdateAsync(order);
-            }
-            catch (DbException exception)
-            {
-                Console.WriteLine(exception.Message.ToString());
-            }
-        }
         public async Task<List<Order>> GetAllAsync()
         {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                var orders = await dbcontext.Orders
-                                            .Include(c => c.Customer)
-                                            .Include(c => c.Cashier)
-                                            .Include(c=>c.OrderDetails)
-                                            .ThenInclude(c => c.Product)
-                                            .ToListAsync();
-                return orders;
-            }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving orders.", exception);
-            }
+            var dbContext = await GetDbContextAsync();
+            return await dbContext.Orders.Include(property => property.Cashier)
+                .Include(property => property.Customer)
+                .Include(property => property.OrderDetails)
+                .Include(property => property.Invoice)
+                .OrderBy(o => o.OrderStatus)
+                .ToListAsync();
         }
 
-        public async Task<Order> GetByIdAsync(int id)
+        public async Task<Order?> GetByIdAsync(Guid id)
         {
-            var dbcontext = await base.GetDbContextAsync();
-            try
-            {
-                var orders = await dbcontext.Orders
-                                            .Include(c=>c.Customer)
-                                            .Include(c=>c.Cashier)
-                                            .Include(c => c.OrderDetails)
-                                            .ThenInclude(c=>c.Product)
-                                            .ThenInclude(c=>c.Category)
-                                            .Where(c => c.Id == id)
-                                            .SingleOrDefaultAsync();
-                return orders;
-            }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving orders.", exception);
-            }
-            
+            var dbContext = await GetDbContextAsync();
+            // with include
+            return await dbContext.Orders
+                .Where(o => o.Id == id)
+                .Include(o => o.Customer)
+                .Include(o => o.Cashier)
+                .Include(o => o.Invoice)
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.Category)
+                .FirstAsync();
         }
 
         public async Task<List<Order>> SearchOrderAsync(OrderSearchCriteria orderSearchCriteria)
         {
             var dbContext = await base.GetDbContextAsync();
-            try { 
             var orders = await dbContext.Orders
                                         .Include(c => c.Customer)
                                         .Include(c => c.Cashier)
-                                        .WhereIf(orderSearchCriteria.OrderId != null, c => c.Id == orderSearchCriteria.OrderId)
-                                        .WhereIf(orderSearchCriteria.CashierId != null, c => c.CashierId == orderSearchCriteria.CashierId)
+                                        .WhereIf(orderSearchCriteria.Id != null,
+                                        c => c.Id == orderSearchCriteria.Id)
+                                        .WhereIf(orderSearchCriteria.CashierId != null,
+                                        c => c.CashierId == orderSearchCriteria.CashierId)
+                                        .WhereIf(orderSearchCriteria.OrderStatus != 0,
+                                        c => (int)c.OrderStatus == (int)orderSearchCriteria.OrderStatus)
+                                        .OrderBy(o => o.OrderStatus)
                                         .ToListAsync();
-              
+            return orders;
+        }
 
-                return orders;
-            }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while searching for the Orders.", exception);
-            }
-        }
-        public async Task<List<Order>> SerachByOrderStatusAsync(int status)
+        public async Task<Order> UpdateAsync(Order order)
         {
             var dbContext = await base.GetDbContextAsync();
-            try
+            var orderToBeUpdate = await dbContext.Orders
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Customer)
+                .Include(o => o.Invoice)
+                .FirstOrDefaultAsync(o => o.Id == order.Id);
+            if (orderToBeUpdate == null)
             {
-                var orders = await dbContext.Orders
-                                       .Include(c => c.Customer)
-                                       .Include(c => c.Cashier)
-                                       .Where(c => (int)c.OrderStatus == status)
-                                       .ToListAsync();
-                if (status==0)
-                {
-                    orders = await dbContext.Orders
-                                            .Include(c => c.Customer)
-                                            .Include(c => c.Cashier)
-                                            .ToListAsync();
-                }
-                return orders;
+                return order;
             }
-            catch (DbException exception)
+            // tracked when i modify the lp and be modified 
+            //var c = dbContext.Entry(orderToBeUpdate.Customer).State;
+            orderToBeUpdate.Customer = order.Customer;
+
+            if(order.Cashier != null)
             {
-                throw new InvalidOperationException("An error occurred while searching for the Orders.", exception);
+                orderToBeUpdate.Cashier = order.Cashier;
             }
-        }
-        public async Task<double> GetTotalPriceByIdAsync(int id) // 2 
-        {
-            var dbContext = await base.GetDbContextAsync();
-            try
+
+            orderToBeUpdate.OrderStatus = order.OrderStatus;
+            orderToBeUpdate.TotalPrice = order.TotalPrice;
+
+            foreach(var o in order.OrderDetails)
             {
-                double TotalPrice =  dbContext.Orders
-                                              .Where(c=> c.Id == id)
-                                              .Select(c=> c.TotalPrice)
-                                              .FirstOrDefault();
-                return TotalPrice;
+                var orderDetail = orderToBeUpdate.OrderDetails
+                    .FirstOrDefault(od => od.ProductID == o.ProductID);
+                orderDetail.ProductID = o.ProductID;
+                orderDetail.Quantity = o.Quantity;
+                orderDetail.TotalPrice = o.TotalPrice;
             }
-            catch (DbException exception)
-            {
-                throw new InvalidOperationException("An error occurred while searching for the Orders.", exception);
-            }
+
+            orderToBeUpdate.Invoice.Discount = order.Invoice.Discount;
+            orderToBeUpdate.Invoice.NetPrice = order.Invoice.NetPrice;
+            var c = dbContext.Entry(orderToBeUpdate.Customer).State;
+
+            // this is deleted not modi
+            var a = dbContext.Entry(orderToBeUpdate).State;
+
+            await dbContext.SaveChangesAsync();
+            return order;
         }
     }
 }

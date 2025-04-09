@@ -17,10 +17,11 @@ public class Program
         {
             Log.Information("Starting web host.");
             var builder = WebApplication.CreateBuilder(args);
-            //builder.Services.AddControllers().AddJsonOptions(options =>
-            //{
-            //    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            //});
+
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
             builder.Host
                 .AddAppSettingsSecretsJson()
                 .UseAutofac()
@@ -41,6 +42,8 @@ public class Program
                 });
             await builder.AddApplicationAsync<CSMSWebModule>();
             var app = builder.Build();
+            Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
+
             await app.InitializeApplicationAsync();
             await app.RunAsync();
             return 0;

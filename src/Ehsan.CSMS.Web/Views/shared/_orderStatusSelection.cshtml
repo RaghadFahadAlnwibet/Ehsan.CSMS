@@ -1,0 +1,15 @@
+﻿@{
+    var orderSelectedStatus = Model.OrderSearchCriteria?.OrderStatus ?? 0;
+}
+
+<li class="nav-item">
+    <a class="nav-link @(orderSelectedStatus == ViewBag.Orderstatus ? "active" : "")"
+       asp-controller="Order"
+       asp-action="Index"
+       asp-route-OrderSearchCriteria.OrderStatus="@ViewBag.Orderstatus"
+       style="color: #ff5722">
+        @ViewBag.DisplayName
+    </a>
+</li>
+
+

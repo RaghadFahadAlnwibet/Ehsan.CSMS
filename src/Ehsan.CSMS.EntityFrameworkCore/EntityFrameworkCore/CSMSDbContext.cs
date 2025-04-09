@@ -14,7 +14,6 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
-// remove migiration to re buld category
 namespace Ehsan.CSMS.EntityFrameworkCore;
 
 [ReplaceDbContext(typeof(IIdentityDbContext))]
@@ -61,14 +60,14 @@ public class CSMSDbContext :
     public DbSet<IdentitySession> Sessions { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Cashier> Cashiers { get; set; }
-    public DbSet<Customer> Costumers { get; set; }
+    public DbSet<Customer> Customers { get; set; }
     public DbSet<Order> Orders { get; set; }
 
     public DbSet<OrderDetail> OrderDetails { get; set; }
 
     public DbSet<Product> Products { get; set; }
 
-
+    public DbSet<Invoice> Invoices { get; set; }
 
 
     // Tenant Management
@@ -82,7 +81,10 @@ public class CSMSDbContext :
     {
 
     }
-
+    /// <summary>
+    /// Get-Migrations -Context CSMSDbContext
+    /// </summary>
+    /// <param name="builder"></param>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -103,33 +105,54 @@ public class CSMSDbContext :
         builder.Entity<Category>(b =>
         {
             b.ToTable("Category");
-            b.HasKey(c => c.Id); //auto configure for the base class props
-            b.Property(c => c.CategoryName).HasColumnType("Varchar(50)");
+            b.HasKey(c => c.Id);
+            b.Property(o => o.CreationTime)
+             .HasDefaultValueSql("GetDate()")
+             .HasColumnName("Category_Date");
+            b.Property(c => c.Name)
+             .HasColumnType("nvarchar(40)")
+             .IsRequired();
             b.HasMany(c => c.Products)
              .WithOne(p => p.Category)
-             .HasForeignKey(p => p.CategoryId); // Means M(Product) will have CategoryId as a forign key
+             .HasForeignKey(p => p.CategoryId);
+            // ON DELETE NO ACTION
         });
         // Cashier Done
         builder.Entity<Cashier>(b =>
         {
             b.ToTable("Cashier");
-            b.HasKey(c => c.Id); //auto configure for the base class props
-            b.Property(c => c.CashierName).HasColumnType("varchar(50)");
+            b.HasKey(c => c.Id);
+            b.Property(o => o.CreationTime)
+             .HasDefaultValueSql("GetDate()")
+             .HasColumnName("Cashier_Date");
+            b.Property(c => c.Name)
+             .HasColumnType("nvarchar(40)")
+             .IsRequired();
             b.HasMany(c => c.Orders)
              .WithOne(o => o.Cashier)
-             .HasForeignKey(o => o.CashierId);  // CashierId is a forign key to order table 
+             .HasForeignKey(o => o.CashierId);
+            // ON DELETE NO ACTION
         });
         // Customer Done
         builder.Entity<Customer>(b =>
         {
             b.ToTable("Customer");
             b.HasKey(c => c.Id);
-            b.Property(c => c.CustomerName).HasColumnType("varchar(50)");
-            b.Property(c => c.ContactInfo).HasColumnType("varchar(50)");
-            b.Property(c => c.LoyaltyPoints).HasColumnType("int");
+            b.Property(o => o.CreationTime)
+             .HasDefaultValueSql("GetDate()")
+             .HasColumnName("Customer_Date");
+            b.Property(c => c.Name)
+             .HasColumnType("nvarchar(40)")
+             .IsRequired();
+            b.HasIndex(c => c.MobileNumber)
+             .IsUnique();
+            b.Property(c => c.MobileNumber)
+             .HasColumnType("nvarchar(10)")
+             .IsRequired();
             b.HasMany(c => c.Orders)
              .WithOne(o => o.Customer)
-             .HasForeignKey(o => o.CustomerId); // means costumerid is FK to order 
+             .HasForeignKey(o => o.CustomerId);
+            // ON DELETE NO ACTION
         });
         // Order Done
         builder.Entity<Order>(b =>
@@ -137,40 +160,53 @@ public class CSMSDbContext :
             b.ToTable("Order");
             b.HasKey(o => o.Id);
             b.Property(o => o.CreationTime)
-             .IsRequired()
-             .HasColumnType("DateTime")
              .HasDefaultValueSql("GetDate()")
              .HasColumnName("Order_Date");
-            b.Property(o => o.OrderStatus).HasColumnType("int");
+            b.Property(o => o.OrderStatus)
+             .HasColumnType("int");
             b.HasMany(o => o.OrderDetails)
              .WithOne(od => od.Order)
              .HasForeignKey(od => od.OrderId);
-            b.Property(c => c.TotalPrice)
-            .HasColumnType("decimal(9,3)");
+            // ON DELETE NO ACTION
         });
         // derDetail done
         builder.Entity<OrderDetail>(b =>
         {
-            b.ToTable("OrderDetail");
-            b.HasKey(od => od.Id); //auto configure for the base class props
-            b.Property(od => od.PricePerUnit).HasColumnType("decimal(9,3)");
-            b.Property(od => od.TotalPrice).HasColumnType("decimal(9,3)");
-            b.Property(od => od.Quantity).HasColumnType("int");
-            b.HasOne(od => od.Product)
-             .WithMany(p => p.OrderDetails)
-             .HasForeignKey(od => od.ProductId);
-
+            b.ToTable("OrderDetail")
+             .HasKey(od => new { od.OrderId, od.ProductID });
+            b.Property(o => o.Quantity)
+             .IsRequired();
         });
         // Product Done 
         builder.Entity<Product>(b =>
         {
             b.ToTable("Product");
-            b.HasKey(p => p.Id); //auto configure for the base class props
-            b.Property(p => p.ProductName).HasColumnType("varchar(100)");
-            b.Property(p => p.ProductPrice).HasColumnType("decimal(9,3)");
+            b.Property(o => o.CreationTime)
+             .HasDefaultValueSql("GetDate()")
+             .HasColumnName("Product_Date");
+            b.HasKey(p => p.Id);
+            b.Property(p => p.Name)
+             .HasColumnType("nvarchar(40)")
+             .IsRequired();
+            b.Property(p => p.Price)
+             .IsRequired();
             b.HasMany(p => p.OrderDetails)
              .WithOne(od => od.Product)
-             .HasForeignKey(od => od.ProductId);
+             .HasForeignKey(od => od.ProductID);
+            // ON DELETE NO ACTION
+        });
+        // Invoice s
+        builder.Entity<Invoice>(i =>
+        {
+            i.ToTable("Invoice");
+            i.Property(o => o.CreationTime)
+             .HasDefaultValueSql("GetDate()")
+             .HasColumnName("Invoice_Date");
+            i.HasKey(p => p.Id);
+            i.HasOne(i => i.Order)
+             .WithOne(o => o.Invoice)
+             .HasForeignKey<Invoice>(i => i.OrderId);
+            // ON DELETE NO ACTION
         });
     }
 

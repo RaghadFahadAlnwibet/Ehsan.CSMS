@@ -1,15 +1,21 @@
-﻿@using Ehsan.CSMS.Dtos
-@model OrderDto
+﻿@model OrderResponse
+
 @{
     ViewData["title"] = "Order Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-    <div class="card p-4" style="width: 100%; border-radius: 10px;">
+<link href="~/css/OrderDetails.css" rel="stylesheet" />
+@{
+    var status = (int?)Model.OrderStatus;
+}
+@if (status == 3)
+{
+    <a asp-controller="Order" asp-action="ShowInvoice" asp-route-id="@Model.Id" class="btn btn mainbtn" style="background-color: #ff5722; color: white">Order Pdf</a>
+}
+<div class="card p-4 mt-4" style="width: 100%; border-radius: 10px;">
     <h3 class="text-dark p-4 d-flex justify-content-between align-items-start">
-        Order Details #@Model.Id
+        Order #@Model.Id
         @{
-            var status = (int)Model.OrderStatus;
             switch (status)
             {
                 case 1:
@@ -28,20 +34,21 @@
                     <span class="badge rounded-pill bg-secondary" style="color:white; padding:6px; width: 80px;">@Model.OrderStatus</span>
                     break;
             }
-        }
-       
-    </h3>
-       
-        <div class="card-body">
-            <table>
 
-                <tbody>
-                    @foreach (var orderDetail in Model.OrderDetails)
+        }
+    </h3>
+
+    <div class="card-body">
+        <table>
+            <tbody>
+                @if(Model.OrderDetailsResponses is not null)
+                {
+                    @foreach (var orderDetail in Model.OrderDetailsResponses)
                     {
                         <tr>
                             <td>
                                 <div>
-                                <strong>@orderDetail.Product.ProductName | @orderDetail.Product.Category.CategoryName</strong>
+                                    <strong>@orderDetail?.Product?.Name | @orderDetail?.Product?.Category?.Name</strong>
                                     <br />
                                     <span>Product Name</span>
                                 </div>
@@ -53,93 +60,90 @@
                                     <span>Qty</span>
                                 </div>
                             </td>
-                        <td>
-                            
-                                <span>X</span>
-                            
-                        </td>
-
+                            <td><span>X</span></td>
                             <td>
                                 <div>
-                                    <strong>@orderDetail.PricePerUnit<span class="price">SAR</span></strong>
+                                    <strong>@orderDetail.Product?.Price<span class="price">SAR</span></strong>
                                     <br />
                                     <span>Price</span>
                                 </div>
                             </td>
-                        <td>
-                            <div>
-                                <strong>@orderDetail.TotalPrice<span class="price">SAR</span></strong>
-                                <br />
-                                <span>SubTotal</span>
-                            </div>
-                        </td>
+                            <td>
+                                <div>
+                                    <strong>@orderDetail.TotalPrice<span class="price">SAR</span></strong>
+                                    <br />
+                                    <span>SubTotal</span>
+                                </div>
+                            </td>
                         </tr>
                     }
-                 </tbody>
 
-            </table>
-            @Html.HiddenFor(c=>c.Id)
-        <span>Creation time: @Model.CreationTime</span><br />
-        @if (@Model.LastModificationTime != null)
+                }
+            </tbody>
+        </table>
+        <span>Creation time: @Model.CreationTime.ToString("dd MMM yyyy")</span><br />
+        @if (Model.LastModificationTime is not null)
         {
-            <span>Last Modification time: @Model.LastModificationTime</span>
+            <span>Last Modification time: @Model.LastModificationTime?.ToString("dd MMM yyyy")</span>
         }
-
     </div>
-        <div class="row mt-4">
+    @{
+        var sum = Model.OrderDetailsResponses?.Sum(o => o.Quantity);
+    }
+    <div class="row mt-4">
         <div class="col-md-12 d-flex justify-content-between pb-2">
-            <i>SubTotal(<i id="NoOfItem"></i> items)</i>
+            <i>SubTotal(<i>@sum</i> items)</i>
             <span id="summary">@Model.TotalPrice <span>SAR</span></span>
         </div>
-            <div class="col-md-12 d-flex justify-content-between pb-2 ">
+        <div class="col-md-12 d-flex justify-content-between pb-2">
             <i>Discount</i>
-            <span id="summary">@Model.discount <span>SAR</span></span>
-            </div>
-           
-            <div class="col-md-12 d-flex justify-content-between pb-2">
-                <strong>Order Total</strong>
-                <strong >@Model.NetPrice <span>SAR</span></strong>
-            </div>
+            <span id="summary">@Model.Invoice?.Discount <span>SAR</span></span>
         </div>
-    
+        <div class="col-md-12 d-flex justify-content-between pb-2">
+            <strong>Order Total</strong>
+            <strong>@Model.Invoice?.NetPrice <span>SAR</span></strong>
+        </div>
     </div>
+</div>
 
-    <div class="card mt-4" style="width: 100%; background-color: white; padding: 20px; border-radius: 10px;">
-        <ul class="nav nav-tabs" id="orderTabs" role="tablist">
-            <li class="nav-item" role="presentation">
+<div class="card mt-4" style="width: 100%; background-color: white; padding: 20px; border-radius: 10px;">
+    <ul class="nav nav-tabs" id="orderTabs" role="tablist">
+        <li class="nav-item" role="presentation">
             <a class="nav-link active" id="item-details-tab" data-toggle="tab" href="#item-details" role="tab" aria-controls="item-details" aria-selected="true" style="color:#ff5722;">Item Details</a>
-            </li>
-            <li class="nav-item" role="presentation">
+        </li>
+        <li class="nav-item" role="presentation">
             <a class="nav-link" id="courier-tab" data-toggle="tab" href="#courier" role="tab" aria-controls="courier" aria-selected="false" style="color:#ff5722;">Courier</a>
-            </li>
-            <li class="nav-item" role="presentation">
+        </li>
+        <li class="nav-item" role="presentation">
             <a class="nav-link" id="receiver-tab" data-toggle="tab" href="#receiver" role="tab" aria-controls="receiver" aria-selected="false" style="color:#ff5722;">Receiver</a>
-            </li>
-        </ul>
+        </li>
+    </ul>
 
     <div class="tab-content" id="orderTabContent">
         <div class="tab-pane fade show active" id="item-details" role="tabpanel" aria-labelledby="item-details-tab">
             <table style="width: 100%;">
                 <tbody>
-                    @foreach (var orderDetail in Model.OrderDetails)
+                    @if (Model.OrderDetailsResponses is not null)
                     {
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td>
-
-                                <div>
-                                    <strong>@orderDetail.Product.ProductName | @orderDetail.Product.Category.CategoryName</strong>
-                                    <br /><small>Product Name</small>
-                                </div>
-                            </td>
-                            <td>
-                                <div><strong>@orderDetail.Quantity</strong><br /><small>Qty</small></div>
-                            </td>
-                            <td>
-                                <div>
-                                    <strong>@orderDetail.PricePerUnit<span class="price"> SAR</span></strong><br /><small>Price</small>
-                                </div>
-                            </td>
-                        </tr>
+                        @foreach (var orderDetail in Model.OrderDetailsResponses)
+                        {
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td>
+                                    <div>
+                                        <strong>@orderDetail?.Product?.Name | @orderDetail?.Product?.Category?.Name</strong>
+                                        <br /><small>Product Name</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div><strong>@orderDetail.Quantity</strong><br /><small>Qty</small></div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>@orderDetail.Product?.Price<span class="price"> SAR</span></strong><br /><small>Price</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
@@ -148,16 +152,14 @@
         <div class="tab-pane fade" id="courier" role="tabpanel" aria-labelledby="courier-tab">
             <table style="width: 100%;">
                 <tbody>
-                    
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td>
-                                <div><strong>@Model.Cashier.CashierName </strong> <br /><small>Cashier Name</small></div>
-                            </td>
-                            <td>
-                                <div><strong>@Model.CreationTime </strong> <br /><small>Creation Time</small></div>
-                            </td>
-                          
-                        </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td>
+                            <div><strong>@Model.Cashier?.Name </strong> <br /><small>Cashier Name</small></div>
+                        </td>
+                        <td>
+                            <div><strong>@Model.CreationTime </strong> <br /><small>Creation Time</small></div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -165,15 +167,9 @@
         <div class="tab-pane fade" id="receiver" role="tabpanel" aria-labelledby="receiver-tab">
             <table style="width: 100%;">
                 <tbody>
-
-                    <tr style="border-bottom: 1px solid #ddd;">
-                        <td>
-                            <div><strong>@Model.Customer.CustomerName </strong> <br /><small>Customer Namae</small></div>
-                        </td>
-                        <td>
-                            <div><strong>@Model.Customer.ContactInfo </strong> <br /><small>Mobile Number</small></div>
-                        </td>
-
+                    <tr>
+                        <td><strong>@Model.Customer?.Name</strong><br /><small>Receiver Name</small></td>
+                        <td><strong>@Model.Customer?.LoyaltyPoint</strong><br /><small>Receiver Loyalty Points</small></td>
                     </tr>
                 </tbody>
             </table>
@@ -182,84 +178,9 @@
 </div>
 
 
-       
 
-<style>
-    .card {
-        border-radius: 10px;
+@section orderDetailsScript{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+}
 
-    }
-    #summary{
-        font-size: 14px;
-        color: black;
-        font-weight: lighter
-    }
-    span{
-        font-size: 10px; 
-        color: gray;
-    }
-    .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-        background-color: rgba(255, 255, 255, 0.075);
-        border-color: #ddd;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
-
-    td {
-        padding: 15px 10px;
-        font-size: 14px;
-        color: #555;
-    }
-
-    strong {
-        font-weight: 600;
-        font-size: 16px;
-        color: #333;
-    }
-
-    small {
-        font-size: 12px;
-        color: #888;
-    }
-
-    .price {
-        margin-left: 5px;
-        color: #333;
-    }
-
-    .nav-tabs .nav-link {
-        font-size: 16px;
-        padding: 10px;
-    }
-</style>
-<style>
-    .badge-container {
-        text-align: right;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 5px 10px;
-        background-color: #fde4b3; 
-        color: #705f4b; 
-        border-radius: 15px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    i{
-        font-size: 12px;
-    }
-</style>
-
-<script>
-    var NoOfItemURL = '@Url.Action("GetNoOfItems", "Order")';
-</script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/OrderDetailsScript.js">
-   
-</script>

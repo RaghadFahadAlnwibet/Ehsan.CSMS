@@ -1,144 +1,90 @@
-﻿using AutoMapper;
-using Ehsan.CSMS.Dtos;
+﻿using Ehsan.CSMS.Dtos.CategoryDto;
 using Ehsan.CSMS.Entities;
+using Ehsan.CSMS.Helper;
 using Ehsan.CSMS.IRepositories;
 using Ehsan.CSMS.IService;
 using Ehsan.CSMS.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 using Volo.Abp.ObjectMapping;
 
-namespace Ehsan.CSMS.Services
+namespace Ehsan.CSMS.Services;
+
+// get countAsync
+public class CategoryService : ApplicationService, ICategoryServices
 {
-    // get countAsync
-    public class CategoryService : ApplicationService, ICategoryServices
+    private readonly ICategoryRepository _categoryRepository;
+
+    public CategoryService(ICategoryRepository categoryRepository)
     {
-        private ICategoryRepository _categoryRepository;
+        _categoryRepository = categoryRepository;
+    }
 
-        public CategoryService(ICategoryRepository categoryRepository)
-        {
-            _categoryRepository = categoryRepository;
-        }
+    public async Task<CategoryResponse> AddAsync(CategoryAddRequest? category)
+    {
+        if (category is null)
+        { throw new ArgumentNullException(nameof(category)); }
+        ValidationHelper.ValidateModel(category);
+        if (await _categoryRepository.GetByNameAsync(category.Name) is not null)
+        { throw new ArgumentException($"{category.Name} already exit"); }
 
-        public async Task AddAsync(CategoryDto category)
-        {
-            try 
-            {
-                var categoryEntity = ObjectMapper.Map<CategoryDto, Category>(category);
-                await _categoryRepository.AddAsync(categoryEntity);
-            }
-            catch (DbException exception)
-            { 
-                new InvalidOperationException("Failed to add categpry", exception);
-            }
-        }
+        var categoryEntity = ObjectMapper.Map<CategoryAddRequest, Category>(category);
+        var addedCategory = await _categoryRepository.AddAsync(categoryEntity);
+        return ObjectMapper.Map<Category, CategoryResponse>(addedCategory);
+    }
 
-        public async Task DeleteAsync(CategoryDto category)
-        {
-            try
-            {
-                var categoryEntity = ObjectMapper.Map<CategoryDto, Category>(category);
-                await _categoryRepository.DeleteAsync(categoryEntity);
-            }
-            catch (DbException exception)
-            {
-                new InvalidOperationException("Failed to delete category", exception);
-            }
-        }
+    public Task<bool> DeleteByIdAsync(Guid? id)
+    {
+        if (id is null)
+        { throw new ArgumentNullException(nameof(id)); }
+        return _categoryRepository.DeleteByIdAsync(id.Value);
+    }
 
-        public async Task DeleteByIdAsync(int id)
-        {
-            try 
-            {
-                await _categoryRepository.DeleteByIdAsync(id);
-            }
-            catch (DbException exception)
-            {
-                new InvalidOperationException("Failed to delete category", exception);
-            }
-        }
+    public async Task<IEnumerable<CategoryResponse>> GetAllAsync()
+    {
+        var categories = await _categoryRepository.GetAllAsync();
+        return ObjectMapper.Map<List<Category>, List<CategoryResponse>>(categories);
+    }
 
-        public async Task<List<CategoryDto>> GetAllAsync()
+    public async Task<CategoryResponse?> GetByIdAsync(Guid? id)
+    {
+        if (id is null)
+        { throw new ArgumentNullException(nameof(id)); }
+        var category = await _categoryRepository.GetByIdAsync(id.Value);
+        return ObjectMapper.Map<Category?, CategoryResponse>(category);
+    }
+
+
+    public async Task<IEnumerable<CategoryResponse>> SearchAsync(CategorySearchCriteria searchCriteria)
+    {
+        var categories = await _categoryRepository.SearchAsync(searchCriteria);
+        return ObjectMapper.Map<List<Category>, List<CategoryResponse>>(categories);
+    }
+
+    public async Task<CategoryResponse> UpdateAsync(CategoryUpdateRequest? category)
+    {
+        if (category is null)
+        { throw new ArgumentNullException(nameof(category)); }
+        ValidationHelper.ValidateModel(category);
+        if(category.Id == Guid.Empty)
+        { throw new ArgumentNullException(nameof(category)); }
+
+        // unique check
+        var categoryToCheck = await _categoryRepository.GetByNameAsync(category.Name!);
+        if (categoryToCheck != null && categoryToCheck.Id != category.Id)
+        { throw new ArgumentException($"Invalid Category {0}", nameof(category.Name)); }
+        
+        // valid id check 
+        var categoryToUpdate = await _categoryRepository.GetByIdAsync(category.Id);
+        if (categoryToUpdate is null)
         {
-            try 
-            {
-                var categories = await _categoryRepository.GetListAsync();
-                var categoryDtos = ObjectMapper.Map<List<Category>, List<CategoryDto>>(categories);
-                return categoryDtos;
-            }
-            catch (DbException exception) 
-            {
-                return null;
-            }
-        }
-        public async Task<CategoryDto> GetbyIdAsync(int id)
-        {
-            try 
-            {
-                var categories = await _categoryRepository.GetbyIdAsync(id);
-                var categoryDtos = ObjectMapper.Map<Category, CategoryDto>(categories);
-                return categoryDtos;
-            }
-            catch(DbException exception)
-            {
-                return null;
-            }
+            { throw new ArgumentNullException(nameof(category)); }
         }
 
-        public async Task<CategoryDto> GetByNameAsync(string name)
-        {
-            try 
-            {
-                var categories = await _categoryRepository.GetByNameAsync(name);
-                var categoryDtos = ObjectMapper.Map<Category, CategoryDto>(categories);
-                return categoryDtos;
-            }
-            catch(DbException exception)
-            {
-                return null;
-            }
-        }
-        public async Task UpdateAsync(CategoryDto category)
-        {
-            try
-            {
-                var categoryEntity = ObjectMapper.Map<CategoryDto, Category>(category);
-                await _categoryRepository.UpdateAsync(categoryEntity);
-            }
-            catch (DbException exception)
-            {
-                new InvalidOperationException("Failed to update category", exception);
-            }
-        }
-        public async Task UpdateCategoryNameAsync(int id, string name)
-        {
-            try 
-            {
-                await _categoryRepository.UpdateCategoryNameAsync(id, name);
-            }
-            catch (DbException exception)
-            {
-                new InvalidOperationException("Failed to update category", exception);
-            }
-        }
-        public async Task<List<CategoryDto>> SearchAsync(CategorySearchCriteria categorySearchCriteria)
-        {
-            try
-            {
-                var categories = await _categoryRepository.SearchAsync(categorySearchCriteria);
-                var categoryDtos = ObjectMapper.Map<List<Category>, List<CategoryDto>>(categories);
-                return categoryDtos;
-            }
-            catch (DbException exception)
-            {
-                return null;
-            }
-        }
-
+        categoryToUpdate.Name = category.Name;
+        var updatedCategory = await _categoryRepository.UpdateAsync(categoryToUpdate);
+        return ObjectMapper.Map<Category, CategoryResponse>(updatedCategory);
     }
 }

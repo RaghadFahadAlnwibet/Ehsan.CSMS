@@ -1,0 +1,27 @@
+﻿   span {
+        font-size: 10px;
+        color: gray;
+    }
+    .card {
+        border-radius: 15px;
+        background-color: white;
+        box-shadow: none;
+    }
+
+    h3 {
+        font-size: 24px;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    span.text-secondary {
+        font-size: 14px;
+        color: black;
+    }
+
+    th {
+        font-weight: bold;
+        text-align: left;
+        background-color: white;
+        padding: 15px;
+    }

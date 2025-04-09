@@ -1,31 +1,58 @@
-﻿@using Ehsan.CSMS.Dtos
-@model OrderDto
+﻿@model OrderResponse
 @{
-    ViewData["title"] = "Invoice";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null;
 }
-<div class="card p-4" style="width: 100%; border-radius: 10px; background-color: #f8f9fc;">
-   
+<link href="@($"{Context.Request.Scheme}://{Context.Request.Host}/css/InvoicePrint.css")" rel="stylesheet" />
 
-    <h3 class="text-center text-dark font-weight-bold" style="font-size: 2.5rem;">
-        <strong>@Model.NetPrice SAR</strong>
-    </h3>
+<div class="invoice-container card p-4 mt-4">
+    <h2 class="invoice-header">Invoice #@Model.Invoice.Id</h2>
+    <div class="card-body">
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th></th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.OrderDetailsResponses != null)
+                {
+                    foreach (var orderDetail in Model.OrderDetailsResponses)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@orderDetail?.Product?.Name</strong><br />
+                                <small>@orderDetail?.Product?.Category?.Name</small>
+                            </td>
+                            <td>@orderDetail.Quantity</td>
+                            <td>x</td>
+                            <td>@orderDetail.Product?.Price <span class="currency">SAR</span></td>
+                            <td>@orderDetail.TotalPrice <span class="currency">SAR</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
 
-    <p class="text-center text-muted">No. INV #@Model.Id</p>
+        <div class="date-info">
+            <p>Creation Time: @Model.CreationTime.ToString("dd MMM yyyy")</p>
+            @if (Model.LastModificationTime is not null)
+            {
+                <p>Last Modified: @Model.LastModificationTime?.ToString("dd MMM yyyy")</p>
+            }
+        </div>
 
-    <div class="d-flex justify-content-center align-items-center mb-3">
-        <span class="mr-2">Status:</span> &nbsp; &nbsp;
-        <span class="badge rounded-pill bg-success" style="color:white; padding:6px; width: 80px;">@Model.OrderStatus</span>
-    </div>
+        @{
+            var sum = Model.OrderDetailsResponses?.Sum(o => o.Quantity);
+        }
 
-
-    <div class="text-center text-muted">
-        Order Date: <span>@Model.CreationTime</span>
+        <div class="summary">
+            <div><span>SubTotal (@sum items):</span><strong>@Model.TotalPrice SAR</strong></div>
+            <div><span>Discount:</span><strong>@Model.Invoice?.Discount SAR</strong></div>
+            <div class="total"><span>Total:</span><strong>@Model.Invoice?.NetPrice SAR</strong></div>
+        </div>
     </div>
 </div>
-
-
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Ehsan.CSMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Ehsan.CSMS.Data;
+using System;
+using System.Threading.Tasks;
 using Volo.Abp.DependencyInjection;
 
 namespace Ehsan.CSMS.EntityFrameworkCore;

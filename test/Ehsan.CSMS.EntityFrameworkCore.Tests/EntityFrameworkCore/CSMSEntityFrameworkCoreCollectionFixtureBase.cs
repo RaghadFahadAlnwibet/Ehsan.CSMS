@@ -1,5 +1,4 @@
-﻿using Ehsan.CSMS.EntityFrameworkCore;
-using Xunit;
+﻿using Xunit;
 
 namespace Ehsan.CSMS.EntityFrameworkCore;
 
