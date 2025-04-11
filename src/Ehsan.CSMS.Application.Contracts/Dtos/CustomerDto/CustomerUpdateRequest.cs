@@ -1,4 +1,5 @@
 ﻿using Ehsan.CSMS.Constant;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Application.Dtos;
@@ -27,6 +28,7 @@ public class CustomerUpdateRequest : AuditedEntityDto<Guid>
     [RegularExpression("^[0-9]{10}$",
     ErrorMessage = "{0} must be exactly 10 digits long.")]
     [Required(ErrorMessage = "Please enter {0}.")]
+    [Remote(action: "IsExitMobileNumber", controller: "Customer", ErrorMessage = "Mobile Number is already exit")]
     public string? MobileNumber { get; set; }
     /// <summary>
     /// Loyalty point of the customer request object

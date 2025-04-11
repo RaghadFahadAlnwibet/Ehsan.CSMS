@@ -1,4 +1,5 @@
 ﻿using Ehsan.CSMS.Constant;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Ehsan.CSMS.Dtos.CustomerDto;
@@ -26,6 +27,7 @@ public class CustomerAddRequest
     ErrorMessage = "{0} must be exactly 10 digits long.")]
     [Phone]
     [Required(ErrorMessage = "Please enter {0}.")]
+    [Remote(action: "IsExitMobileNumber", controller: "Customer", ErrorMessage = "Mobile Number is already exit")]
     public string? MobileNumber { get; set; }
     ///// <summary>
     ///// Loyalty point of the customer request object
