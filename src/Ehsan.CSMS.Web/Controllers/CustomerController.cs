@@ -90,4 +90,14 @@ public class CustomerController : Controller
     {
         return ViewComponent("CustomerOrder", mobileNumber);
     }
+
+    public async Task<IActionResult> IsExitMobileNumber(string mobileNumber)
+    {
+        var customer = await _costumerService.GetByMobile(mobileNumber);
+        if (customer != null)
+        {
+            return Json(false);
+        }
+        return Json(true);
+    }
 }

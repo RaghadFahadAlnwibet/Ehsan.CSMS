@@ -54,7 +54,6 @@ internal class CustomerRepository : EfCoreRepository<CSMSDbContext, Customer>, I
     {
         var dbContext = await GetDbContextAsync();
         return await dbContext.Customers
-            .AsNoTracking()
             .FirstOrDefaultAsync(customer =>
             customer.MobileNumber!.Equals(mobileNumber));
     }
