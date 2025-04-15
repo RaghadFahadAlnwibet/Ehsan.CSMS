@@ -1,5 +1,6 @@
 ﻿# Ehsan.CSMS
 ###  A system to help businesses manage and track orders efficiently, it is a simple system with CRUD opertaions 
+## Uses Asp.Net Core MVC
 ## About this solution
 
 This is a layered startup solution based on [Domain Driven Design (DDD)](https://docs.abp.io/en/abp/latest/Domain-Driven-Design) practises. All the fundamental ABP modules are already installed. Check the [Application Startup Template](https://docs.abp.io/en/commercial/latest/startup-templates/application/index) documentation for more info.
