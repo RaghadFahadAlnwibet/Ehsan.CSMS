@@ -88,6 +88,7 @@ public class OrderController : Controller
         {
             orderDetailsUpdateRequest.Add(new OrderDetailsUpdateRequest()
             {
+                Id = od.Id,
                 ProductID = od.ProductId,
                 Quantity = od.Quantity,
                 Product = od.Product,

@@ -19,6 +19,7 @@ public class EditOrderViewModel
     // TomList
     public IEnumerable<ProductResponse>? Products { get; set; }
 
+    public List<Guid>? OrderItemsId { get; set; }
     // because i use js the filter pipeline will not be entered
     //public IEnumerable<ValidationResult> Validate
     //    (ValidationContext validationContext)

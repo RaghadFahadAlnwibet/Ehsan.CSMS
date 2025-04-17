@@ -13,6 +13,6 @@
 </div>
 <div class="col-md-6 col-sm-6 p-4">
     @Html.LabelFor(c => c.MobileNumber, new { @class = "form-label" })
-    @Html.TextBoxFor(c => c.MobileNumber, new { @class = "form-control", @placeholder = "Enter Customer Mobile Number" })
+    @Html.TextBoxFor(c => c.MobileNumber, new { @class = "form-control", @placeholder = "Enter Customer Mobile Number", @readonly = "readonly" })
     @Html.ValidationMessageFor(c => c.MobileNumber, "", new { @class = "text-danger" })
 </div>

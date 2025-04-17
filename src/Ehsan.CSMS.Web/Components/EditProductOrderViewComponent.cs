@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 namespace Ehsan.CSMS.Web.Components;
 
-public class ProductOrderViewComponent : ViewComponent
+public class EditProductOrderViewComponent : ViewComponent
 {
     public IProductService _ProductService;
 
-    public ProductOrderViewComponent(IProductService productService)
+    public EditProductOrderViewComponent(IProductService productService)
     {
         _ProductService = productService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        CreateOrderViewModel createOrderViewModel = new CreateOrderViewModel();
+        EditOrderViewModel editOrderViewModel = new EditOrderViewModel();
         
         var products = await _ProductService.GetAllAsync();
-        createOrderViewModel.Products = products;
-        return View("LoadProductData", createOrderViewModel);
+        editOrderViewModel.Products = products;
+        return View("LoadProductData", editOrderViewModel);
     }
 }

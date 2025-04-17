@@ -1,9 +1,23 @@
 ﻿$(function () {
 
     console.log("JavaScrip is excecuting");
-    function renderPartialView(callback) {
+    function renderCreatePartialView(callback) {
         $.ajax({
-            url: productInfoUrl,
+            url: createProductInfoUrl,
+            type: 'GET',
+            success: function (responseText) {
+                let $newRow = $(responseText);
+                $("#productRows").append($newRow);
+                if (callback) callback($newRow);
+            },
+            error: function (status, xhr, error) {
+                console.log("Error loading partial view:", status, xhr, error);
+            }
+        });
+    }
+    function renderEditPartialView(callback) {
+        $.ajax({
+            url: editProductInfoUrl,
             type: 'GET',
             success: function (responseText) {
                 let $newRow = $(responseText);
@@ -16,6 +30,7 @@
         });
     }
 
+
     GetOrder();
     function GetOrder() {
         let orderId = $("#Id").val();
@@ -27,17 +42,19 @@
 
                 if (response.orderDetailsResponses && response.orderDetailsResponses.length > 0) {
                     response.orderDetailsResponses.forEach((item, i) => {
-                        renderPartialView(function ($newRow) {
+                        renderEditPartialView(function ($newRow) {
                             $newRow.attr("id", i);
 
                             $newRow.find("#SelectedProduct").val(item.product.id);
                             $newRow.find("#PricePerUnit").val(item.product.price);
                             $newRow.find("#Quantity").val(item.quantity);
                             $newRow.find("#SubTotals").val(item.totalPrice);
+                            $newRow.find("#OrderItemsId").val(item.id);
 
 
                             order.products.push({
                                 index: i,
+                                OrderItem: item.id,
                                 ProductId: item.product.id,
                                 PricePerUnit: item.product.price,
                                 Quantity: item.quantity,
@@ -47,7 +64,7 @@
                             index = i + 1;
                         });
                     });
-                    console.log("Order", order);
+                    console.log("Order After loading", order);
 
                     order.TotalPrice = response.totalPrice;
                     DisplayTotalPrice(order.TotalPrice);
@@ -66,7 +83,7 @@
     let index = 0;
     $("#addItemBtn").click(function () {
         $(".productsLabels").show();
-        renderPartialView();
+        renderCreatePartialView();
 
     });
 
@@ -165,6 +182,7 @@
         if (productPrice && quantity) {
             let productId = $row.find("#SelectedProduct").val();
             var subTotal = CalcSubTotal($row, quantity, productPrice);
+            console.log(subTotal);
             DisplaySubTotal($row, subTotal)
             addProduct($row, productId, productPrice, quantity, subTotal);
         }
@@ -276,6 +294,7 @@
             Id: $("#Id").val(),
             orderStatus: $("#orderStatus").val(),
             OrderDetailsUpdateRequest: order.products.map(p => ({
+                Id: p.OrderItem,
                 ProductID: p.ProductId,
                 Quantity: parseInt(p.Quantity)
             }))

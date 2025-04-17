@@ -97,9 +97,14 @@ public class ProductController : Controller
         return BadRequest("Failed to delete product");
         
     }
-    public IActionResult GetProductInformation()
+    public IActionResult GetCreateProductInformation()
     {
-        return ViewComponent("ProductOrder");
+        return ViewComponent("CreateProductOrder");
+    }
+
+    public IActionResult GetEditProductInformation()
+    {
+        return ViewComponent("EditProductOrder");
     }
 
 

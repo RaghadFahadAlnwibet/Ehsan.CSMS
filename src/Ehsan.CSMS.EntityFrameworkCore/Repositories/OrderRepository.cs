@@ -31,7 +31,6 @@ namespace Ehsan.CSMS.Repositories
             _logger.LogInformation("{ClassName}.{MethodName}", 
                 nameof(OrderRepository), 
                 nameof(AddAsync));
-            // dublicate key 
             return await InsertAsync(order);
         }
 
@@ -92,46 +91,83 @@ namespace Ehsan.CSMS.Repositories
 
         public async Task<Order> UpdateAsync(Order order)
         {
-            var dbContext = await base.GetDbContextAsync();
-            var orderToBeUpdate = await dbContext.Orders
-                .Include(o => o.OrderDetails)
-                .Include(o => o.Customer)
-                .Include(o => o.Invoice)
+            _logger.LogInformation("{ClassName}.{MethodName}",
+                        nameof(OrderRepository),
+                        nameof(UpdateAsync));
+
+            var _dbContext = await base.GetDbContextAsync();
+
+            var orderEntity = await _dbContext.Orders
+                .Include(i => i.Invoice)
+                .Include(od => od.OrderDetails)
                 .FirstOrDefaultAsync(o => o.Id == order.Id);
-            if (orderToBeUpdate == null)
+            
+            if (orderEntity == null)
             {
-                return order;
+                throw new ArgumentException($"Order {order.Id} not found");
             }
-            // tracked when i modify the lp and be modified 
-            //var c = dbContext.Entry(orderToBeUpdate.Customer).State;
-            orderToBeUpdate.Customer = order.Customer;
-
-            if(order.Cashier != null)
+            if (orderEntity.OrderDetails == null)
             {
-                orderToBeUpdate.Cashier = order.Cashier;
+                throw new ArgumentException($"Order details of Order {order.Id} not found");
             }
-
-            orderToBeUpdate.OrderStatus = order.OrderStatus;
-            orderToBeUpdate.TotalPrice = order.TotalPrice;
-
-            foreach(var o in order.OrderDetails)
+            if (orderEntity.Invoice == null)
             {
-                var orderDetail = orderToBeUpdate.OrderDetails
-                    .FirstOrDefault(od => od.ProductID == o.ProductID);
-                orderDetail.ProductID = o.ProductID;
-                orderDetail.Quantity = o.Quantity;
-                orderDetail.TotalPrice = o.TotalPrice;
+                throw new ArgumentException($"invoice of Order {order.Id} not found");
+            }
+            if (order.OrderDetails == null)
+            {
+                throw new ArgumentException($"Order details of Order {order.Id} is null");
+            }
+            if (order.Invoice == null)
+            {
+                throw new ArgumentException($"invoice details of Order {order.Id} is null");
             }
 
-            orderToBeUpdate.Invoice.Discount = order.Invoice.Discount;
-            orderToBeUpdate.Invoice.NetPrice = order.Invoice.NetPrice;
-            var c = dbContext.Entry(orderToBeUpdate.Customer).State;
+            orderEntity.OrderStatus = order.OrderStatus;
+            orderEntity.TotalPrice = order.TotalPrice;
+            orderEntity.Invoice.Discount = order.Invoice.Discount;
+            orderEntity.Invoice.NetPrice = order.Invoice.NetPrice;
 
-            // this is deleted not modi
-            var a = dbContext.Entry(orderToBeUpdate).State;
 
-            await dbContext.SaveChangesAsync();
+            var incomingIds = order.OrderDetails.Select(o => o.Id).ToHashSet();
+            foreach (var existing in orderEntity.OrderDetails.ToList())
+            {
+                if (!incomingIds.Contains(existing.Id))
+                    _dbContext.OrderDetails.Remove(existing);
+            }
+            var s = _dbContext.Entry(orderEntity).State;
+
+            var orderDetailsTemp = new List<OrderDetail>();
+            foreach (var orderDetails in order.OrderDetails)
+            {
+                var orderDetail = orderEntity.OrderDetails
+                    .FirstOrDefault(od => od.Id == orderDetails.Id);
+               
+                if(orderDetail == null)
+                {
+
+                    orderDetailsTemp.Add(new OrderDetail
+                    {
+                        OrderId = orderDetails.OrderId,
+                        ProductID = orderDetails.ProductID,
+                        Quantity = orderDetails.Quantity,
+                        ProductPrice = orderDetails.ProductPrice,
+                        TotalPrice = orderDetails.TotalPrice,
+                    });
+                }
+                else
+                {
+                    orderDetail.Quantity = orderDetails.Quantity;
+                    orderDetail.TotalPrice = orderDetails.TotalPrice;
+                }
+            }
+            orderDetailsTemp.ToList().ForEach(temp => orderEntity.OrderDetails.Add(temp));
+
+
+
+            await _dbContext.SaveChangesAsync();
             return order;
         }
     }
 }
+

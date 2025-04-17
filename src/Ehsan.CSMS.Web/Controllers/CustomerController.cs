@@ -93,6 +93,10 @@ public class CustomerController : Controller
 
     public async Task<IActionResult> IsExitMobileNumber(string mobileNumber)
     {
+        if (mobileNumber == null)
+        {
+            return Json(true);
+        }
         var customer = await _costumerService.GetByMobile(mobileNumber);
         if (customer != null)
         {

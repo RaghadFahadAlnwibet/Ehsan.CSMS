@@ -109,11 +109,12 @@
 
 @section editOrderScript{
 <script>
-    var productInfoUrl = '@Url.Action("GetProductInformation", "Product")';
+    var createProductInfoUrl = '@Url.Action("GetCreateProductInformation", "Product")';
+    var editProductInfoUrl = '@Url.Action("GetEditProductInformation", "Product")';
     var productPriceUrl = '@Url.Action("GetProductPrice", "Product")';
     var orderInfoUrl = '@Url.Action("GetOrderById", "Order")';
 
-        var updateOrderUrl = '@Url.Action("Edit", "Order")';
+    var updateOrderUrl = '@Url.Action("Edit", "Order")';
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.1/js/tom-select.complete.js"></script>
 <script src="~/js/OrderScripts/EditOrderScript.js" asp-append-version="true"></script>
