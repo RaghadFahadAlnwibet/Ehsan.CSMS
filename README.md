@@ -1,5 +1,5 @@
 ﻿# Ehsan.CSMS
-###  A system to help businesses manage and track orders efficiently, it is a simple system with CRUD opertaions 
+###  A simple system with CRUD opertaions 
 ## Uses Asp.Net Core MVC
 ## About this solution
 
